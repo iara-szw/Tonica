@@ -1,23 +1,22 @@
 import pool from '../config/db.js';
 
 const bibliotecaRepository = {
-  // 1. Busca en la tabla 'musica' usando el MBID (id_externo)
+  // Buscar si la canción ya existe en nuestra caché local
   buscarMusicaPorIdExterno: async (id_externo) => {
-    const query = 'SELECT * FROM musica WHERE id_externo = $1';
+    const query = 'SELECT * FROM canciones WHERE id_externo = $1';
     const result = await pool.query(query, [id_externo]);
-    return result.rows[0]; // Retorna la primera fila encontrada
+    return result.rows; // Retorna el array crudo siempre
   },
 
-  // 2. Guarda el registro en la tabla 'musica' (caché local)
+  // Guardar la canción en la caché local (tabla canciones)
   crearMusicaCache: async (musicaData) => {
-    const { fuente, id_externo, titulo, id_artista_externo, id_album_externo, nombre_artista, genero, duracion_seg } = musicaData;
+    const { id_externo, titulo, id_artista_externo, id_album_externo, nombre_artista, genero, duracion_seg } = musicaData;
     const query = `
-      INSERT INTO musica (fuente, id_externo, titulo, id_artista_externo, id_album_externo, nombre_artista, genero, duracion_seg)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO canciones (id_externo, titulo, id_artista_externo, id_album_externo, nombre_artista, genero, duracion_seg)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
     const result = await pool.query(query, [
-      fuente || 'musicbrainz', 
       id_externo, 
       titulo, 
       id_artista_externo || null, 
@@ -26,15 +25,15 @@ const bibliotecaRepository = {
       genero || 'General', 
       duracion_seg || null
     ]);
-    return result.rows[0];
+    return result.rows; // Retorna el array crudo siempre
   },
 
-  // 3. Guarda o actualiza en la tabla 'items_biblioteca' usando ON CONFLICT
-  guardarItemBiblioteca: async (id_usuario, id_musica, estado, es_favorito, puntuacion) => {
+  // Insertar o actualizar el estado en items_biblioteca
+  guardarItemBiblioteca: async (id_usuario, id_cancion, estado, es_favorito, puntuacion) => {
     const query = `
-      INSERT INTO items_biblioteca (id_usuario, id_musica, estado, es_favorito, puntuacion, actualizado_en)
+      INSERT INTO items_biblioteca (id_usuario, id_cancion, estado, es_favorito, puntuacion, actualizado_en)
       VALUES ($1, $2, $3, $4, $5, now())
-      ON CONFLICT (id_usuario, id_musica) 
+      ON CONFLICT (id_usuario, id_cancion) 
       DO UPDATE SET 
         estado = EXCLUDED.estado,
         es_favorito = EXCLUDED.es_favorito,
@@ -42,8 +41,8 @@ const bibliotecaRepository = {
         actualizado_en = now()
       RETURNING *
     `;
-    const result = await pool.query(query, [id_usuario, id_musica, estado, es_favorito, puntuacion]);
-    return result.rows[0];
+    const result = await pool.query(query, [id_usuario, id_cancion, estado, es_favorito, puntuacion]);
+    return result.rows; // Retorna el array crudo siempre
   }
 };
 
