@@ -16,7 +16,7 @@ app.use('/api/biblioteca', bibliotecaRoutes);
 app.use('/api/estadisticas', estadisticasRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/musica/', musicRoutes);
-app.use('/api/playlists', playlistRoutes);
+app.use('/api/playlist', playlistRoutes);
 app.listen(PORT, () => {
   console.log(`Servidor corriendo con ES Modules en http://localhost:${PORT}`);
 });
