@@ -10,19 +10,41 @@ const bibliotecaRepository = {
 
   // Guardar la canción en la caché local (tabla canciones)
   crearMusicaCache: async (musicaData) => {
-    const { id_externo, titulo, id_artista_externo, id_album_externo, nombre_artista, genero, duracion_seg } = musicaData;
+    const {
+      id_externo,
+      fuente,
+      titulo,
+      id_artista_externo,
+      id_album_externo,
+      nombre_artista,
+      genero,
+      duracion_seg
+    } = musicaData;
+
     const query = `
-      INSERT INTO canciones (id_externo, titulo, id_artista_externo, id_album_externo, nombre_artista, genero, duracion_seg)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO canciones (
+        id_externo,
+        fuente,
+        titulo,
+        id_artista_externo,
+        id_album_externo,
+        nombre_artista,
+        genero,
+        duracion_seg
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      ON CONFLICT (id_externo) DO NOTHING
       RETURNING *
     `;
+
     const result = await pool.query(query, [
-      id_externo, 
-      titulo, 
-      id_artista_externo || null, 
-      id_album_externo || null, 
-      nombre_artista || null, 
-      genero || 'General', 
+      id_externo,
+      fuente || 'external',
+      titulo || 'Canción sin título',
+      id_artista_externo || null,
+      id_album_externo || null,
+      nombre_artista || 'Artista desconocido',
+      genero || 'General',
       duracion_seg || null
     ]);
     return result.rows; // Retorna el array crudo siempre
@@ -43,6 +65,18 @@ const bibliotecaRepository = {
     `;
     const result = await pool.query(query, [id_usuario, id_cancion, estado, es_favorito, puntuacion]);
     return result.rows; // Retorna el array crudo siempre
+  }
+
+  , obtenerItemsBiblioteca: async (id_usuario) => {
+    const query = `
+      SELECT ib.*, c.titulo, c.nombre_artista
+      FROM items_biblioteca ib
+      JOIN canciones c ON ib.id_cancion = c.id
+      WHERE ib.id_usuario = $1
+      ORDER BY ib.actualizado_en DESC
+    `;
+    const result = await pool.query(query, [id_usuario]);
+    return result.rows; 
   }
 };
 

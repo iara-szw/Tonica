@@ -132,6 +132,7 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
     }
 },
   searchMusic: async (queryTerm, type = 'track', retryCount = 0) => {
+
     try {
       const headers = {
         'User-Agent': 'TonicaApp/1.0.0 (devandroid@example.com)',
@@ -143,17 +144,13 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
 
       if (type === 'artist') {
         endpoint = 'artist';
-        searchField = 'artist';
       } else if (type === 'album') {
         endpoint = 'release-group';
-        searchField = 'release_group';
       }
-      console.log(`${MUSICBRAINZ_URL}/${endpoint}`)
- 
       // 2. Petición por Axios al endpoint correspondiente
       const response = await axios.get(`${MUSICBRAINZ_URL}/${endpoint}`, {
         params: {
-          query: searchTerm,
+          query: queryTerm,
           limit: 20,
           fmt: 'json'
         },

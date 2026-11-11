@@ -2,8 +2,12 @@ import bibliotecaRepository from '../repositories/bibliotecaRepository.js';
 
 export const bibliotecaService = {
   guardarInteraccionMusica: async (id_usuario, musicaInput, interaccionInput) => {
-    const { id_externo } = musicaInput;
+    const { id_externo, fuente, titulo, nombre_artista, genero, duracion_seg, id_artista_externo, id_album_externo } = musicaInput;
     const { estado = 'quiero_escuchar', es_favorito = false, puntuacion = null } = interaccionInput;
+
+    if (!id_externo || !fuente) {
+      throw new Error('La canción debe tener un id_externo y una fuente válida.');
+    }
 
     // 1. Buscamos si la canción ya existe en la caché local
     const cancionesExistentes = await bibliotecaRepository.buscarMusicaPorIdExterno(id_externo);
@@ -11,7 +15,16 @@ export const bibliotecaService = {
 
     // 2. Si el array está vacío (length === 0), la creamos. Si no, la reutilizamos.
     if (!cancionesExistentes || cancionesExistentes.length === 0) {
-      const nuevaCancionCache = await bibliotecaRepository.crearMusicaCache(musicaInput);
+      const nuevaCancionCache = await bibliotecaRepository.crearMusicaCache({
+        id_externo,
+        fuente,
+        titulo: titulo || 'Canción sin título',
+        id_artista_externo: id_artista_externo || null,
+        id_album_externo: id_album_externo || null,
+        nombre_artista: nombre_artista || 'Artista desconocido',
+        genero: genero || 'General',
+        duracion_seg: duracion_seg || null
+      });
       cancion = nuevaCancionCache[0];
     } else {
       cancion = cancionesExistentes[0];
@@ -45,5 +58,10 @@ export const bibliotecaService = {
         nombre_artista: cancion.nombre_artista
       }
     };
+  }
+
+  , verBiblioteca: async (id_usuario) => {
+    const itemsBiblioteca = await bibliotecaRepository.obtenerItemsBiblioteca(id_usuario);
+    return itemsBiblioteca;
   }
 };
