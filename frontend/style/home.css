@@ -1,0 +1,169 @@
+/* =========================================
+   Variables de Color y Diseño
+   ========================================= */
+:root {
+  --tonica-header-bg: #65361a;   /* Marrón oscuro del header */
+  --tonica-main-bg: #f4ebe1;     /* Beige claro del fondo */
+  --tonica-text-dark: #4a2e1b;   /* Marrón oscuro para textos */
+  --tonica-text-light: #ffffff;  /* Blanco para textos del header */
+  --tonica-pill-bg: #ab8668;     /* Marrón claro para botones del nav */
+  --tonica-placeholder: #d9d9d9; /* Gris para discos y álbumes */
+  
+  --font-main: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* =========================================
+   Contenedor Principal
+   ========================================= */
+.home-container {
+  font-family: var(--font-main);
+  background-color: var(--tonica-main-bg);
+  min-height: 100vh;
+  color: var(--tonica-text-dark);
+}
+
+/* =========================================
+   Header / Navbar
+   ========================================= */
+.navbar {
+  background-color: var(--tonica-header-bg);
+  color: var(--tonica-text-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  height: 70px;
+  box-sizing: border-box;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.navbar-logo h1 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-pill {
+  width: 50px;
+  height: 20px;
+  background-color: var(--tonica-pill-bg);
+  border-radius: 10px;
+}
+
+.profile-circle {
+  width: 40px;
+  height: 40px;
+  background-color: var(--tonica-pill-bg);
+  border-radius: 50%;
+}
+
+/* =========================================
+   Contenido Principal (Main)
+   ========================================= */
+.main-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-main-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 3rem;
+  color: var(--tonica-text-dark);
+}
+
+/* =========================================
+   Secciones y Carruseles
+   ========================================= */
+.media-section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #7d5a44; /* Un marrón intermedio para subtítulos */
+}
+
+.media-carousel {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  /* Ocultar barra de scroll en navegadores webkit pero permitir scroll */
+  scrollbar-width: none; 
+}
+.media-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+/* =========================================
+   Tarjetas (Cards)
+   ========================================= */
+.media-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  text-align: center;
+}
+
+/* Disco circular */
+.disc-placeholder {
+  width: 100px;
+  height: 100px;
+  background-color: var(--tonica-placeholder);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.disc-hole {
+  width: 20px;
+  height: 20px;
+  background-color: #000;
+  border-radius: 50%;
+}
+
+/* Álbum cuadrado */
+.album-placeholder {
+  width: 100px;
+  height: 100px;
+  background-color: var(--tonica-placeholder);
+  border-radius: 8px; /* Bordes ligeramente redondeados */
+  margin-bottom: 0.5rem;
+}
+
+/* Textos de las tarjetas */
+.item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 2px 0;
+}
+
+.item-subtitle {
+  font-size: 0.7rem;
+  color: #8c7362;
+  margin: 0;
+}
