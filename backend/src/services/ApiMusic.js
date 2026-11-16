@@ -129,7 +129,7 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
    catch (error) {
       if (error.response && error.response.status === 503 && retryCount < 3) {
         await delay(1500); 
-        return await musicService.searchMusic(queryTerm, type, retryCount + 1); 
+        return await musicService.searchById(id, type, retryCount + 1); 
       }
       
       throw new Error('El servidor de música externo está saturado o no responde.');
@@ -199,7 +199,7 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
       return data.recordings.map(track => {
         // Calculamos la duración de milisegundos a segundos si viene el dato
         const duracionSeg = track.length ? Math.round(track.length / 1000) : null;
-        
+        const idAlbum = track.releases?.[0]?.['release-group']?.id || null;
         return {
           id_externo: track.id,
           titulo: track.title,
