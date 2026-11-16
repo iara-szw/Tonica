@@ -1,5 +1,6 @@
 import React from 'react';
-import './Home.css';
+import Header from '../componentes/Header'; // Importamos el nuevo componente Header
+import '../style/home.css';
 
 const Home = () => {
   // Datos de prueba para simular los elementos del diseño
@@ -8,24 +9,8 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      {/* Header / Barra de navegación */}
-      <header className="navbar">
-        <div className="navbar-logo">
-          {/* Símbolo de disco improvisado con CSS/texto para el logo */}
-          <div className="logo-icon">◎</div> 
-          <h1>TÓNICA</h1>
-        </div>
-        
-        <div className="navbar-links">
-          <div className="nav-pill"></div>
-          <div className="nav-pill"></div>
-          <div className="nav-pill"></div>
-        </div>
-
-        <div className="navbar-profile">
-          <div className="profile-circle"></div>
-        </div>
-      </header>
+      {/* Reemplazamos todo el bloque <header> viejo por el componente */}
+      <Header />
 
       {/* Contenido Principal */}
       <main className="main-content">

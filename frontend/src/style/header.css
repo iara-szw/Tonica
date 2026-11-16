@@ -1,0 +1,71 @@
+/* src/style/header.css */
+
+.navbar {
+  background-color: var(--tonica-header-bg, #65361a);
+  color: var(--tonica-text-light, #ffffff);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 3rem;
+  height: 80px;
+  width: 100%;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.navbar-logo h1 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+/* Estilo base de los botones del Header */
+.nav-pill {
+  background-color: var(--tonica-pill-bg, #ab8668);
+  color: #ffffff;
+  text-decoration: none; 
+  padding: 8px 24px; /* Más espacio a los lados para que el texto respire */
+  border-radius: 20px; 
+  font-size: 0.95rem;
+  font-weight: 400; /* Texto normal (sin negrita) por defecto */
+  white-space: nowrap; /* Fuerza a que el texto quede en un solo renglón */
+  box-shadow: none; /* Elimina cualquier sombra */
+  transition: all 0.2s ease;
+}
+
+/* Estilo al pasar el mouse (hover) */
+.nav-pill:hover {
+  background-color: #c4a485; 
+  font-weight: 600; /* Aplica negrita al tocar/pasar el cursor */
+}
+
+/* Estilo cuando el usuario está en esa página (activo) */
+.nav-pill.active {
+  background-color: #8c7362; 
+  font-weight: 700; /* Aplica negrita fuerte si está seleccionado */
+  box-shadow: none; /* Asegura que la versión activa tampoco tenga sombra */
+}
+
+.profile-circle {
+  width: 45px;
+  height: 45px;
+  background-color: var(--tonica-pill-bg, #ab8668);
+  border-radius: 50%;
+  cursor: pointer;
+}
