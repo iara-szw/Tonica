@@ -6,6 +6,7 @@ import musicRoutes from './src/routes/musicaRoutes.js';
 import bibliotecaRoutes from './src/routes/bibliotecaRoutes.js'
 import estadisticasRoutes from './src/routes/estadisticasRoutes.js'
 import playlistRoutes from './src/routes/playlistRoutes.js';
+import actividadRoutes from './src/routes/actividadRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,6 +18,7 @@ app.use('/api/estadisticas', estadisticasRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/musica/', musicRoutes);
 app.use('/api/playlist', playlistRoutes);
+app.use('/api/actividad', actividadRoutes);
 app.listen(PORT, () => {
   console.log(`Servidor corriendo con ES Modules en http://localhost:${PORT}`);
 });

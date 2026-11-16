@@ -36,5 +36,36 @@ router.post('/login', async (req, res) => {
 router.get('/me', authJWT, (req, res) => {
   res.json({ mensaje: 'Sesión activa con el backend 🟢', user: req.user });
 });
+router.get('/perfil', authJWT, async (req, res) => {
+  try {
+    const perfil = await authService.obtenerPerfil(req.user.id);
+    res.status(200).json(perfil);
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
+});
+router.put('/perfil', authJWT, async (req, res) => {
+  const { nombre_usuario, avatar_url, bio, preferencias } = req.body;
 
+  if (
+    nombre_usuario === undefined &&
+    avatar_url === undefined &&
+    bio === undefined &&
+    preferencias === undefined
+  ) {
+    return res.status(400).json({ error: 'Debes enviar al menos un campo para actualizar.' });
+  }
+
+  try {
+    const perfil = await authService.actualizarPerfil(req.user.id, {
+      nombre_usuario,
+      avatar_url,
+      bio,
+      preferencias
+    });
+    res.status(200).json({ mensaje: 'Perfil actualizado con éxito ✨', perfil });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 export default router;
