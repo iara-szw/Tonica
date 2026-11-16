@@ -2,11 +2,26 @@ import pool from '../config/db.js';
 
 const userRepository = {
   buscarEmailUsuario: async (correo, nombre_usuario) => {
-    const query = 'SELECT * FROM usuarios WHERE correo = $1 OR nombre_usuario = $2';
-    const result = await pool.query(query, [correo, nombre_usuario]);
-    return result.rows;
-  },
+    if (correo && nombre_usuario) {
+      const query = 'SELECT * FROM usuarios WHERE correo = $1 OR nombre_usuario = $2 LIMIT 1;';
+      const result = await pool.query(query, [correo, nombre_usuario]);
+      return result.rows[0] || null;
+    }
 
+    if (correo) {
+      const query = 'SELECT * FROM usuarios WHERE correo = $1 LIMIT 1;';
+      const result = await pool.query(query, [correo]);
+      return result.rows[0] || null;
+    }
+
+    if (nombre_usuario) {
+      const query = 'SELECT * FROM usuarios WHERE nombre_usuario = $1 LIMIT 1;';
+      const result = await pool.query(query, [nombre_usuario]);
+      return result.rows[0] || null;
+    }
+
+    return null;
+  },
 
   crearUsuario: async (nombre_usuario, correo, password_hash) => {
     const query = `
@@ -17,7 +32,7 @@ const userRepository = {
     const result = await pool.query(query, [nombre_usuario, correo, password_hash]);
     return result.rows[0];
   },
-// Obtener datos completos del perfil por ID de usuario
+
   obtenerPerfilPorId: async (id_usuario) => {
     const query = `
       SELECT id, nombre_usuario, correo, avatar_url, bio, preferencias, creado_en

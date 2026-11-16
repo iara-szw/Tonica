@@ -1,6 +1,7 @@
 import bibliotecaRepository from '../repositories/bibliotecaRepository.js';
 import actividadRepository from '../repositories/actividadRepository.js';
 import { musicService } from './ApiMusic.js';
+import pool from '../config/db.js';
 
 const normalizarTipo = (tipo) => {
   if (!tipo) return 'track';
@@ -69,6 +70,19 @@ export const bibliotecaService = {
 
     // 1. Obtener desde caché o traer automáticamente desde MusicBrainz
     const contenido = await bibliotecaService.obtenerOCachearMusica(id_externo, tipo);
+
+    if (estado === 'escuchando') {
+      await pool.query(
+        `
+          UPDATE items_biblioteca
+          SET estado = 'escuchado', actualizado_en = now()
+          WHERE id_usuario = $1
+            AND estado = 'escuchando'
+            AND id_cancion <> $2
+        `,
+        [id_usuario, contenido.id]
+      );
+    }
 
     // 2. Guardar o actualizar relación en items_biblioteca
     const resultadoItem = await bibliotecaRepository.guardarItemBiblioteca(
