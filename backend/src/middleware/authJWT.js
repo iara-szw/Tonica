@@ -4,7 +4,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secreto_super_seguro_temporal';
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.header('Authorization');
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Acceso denegado. No se proporcionó un token válido.' });
   }
@@ -16,7 +16,7 @@ const authMiddleware = (req, res, next) => {
     req.user = verified;
     return next();
   } catch (err) {
-    return res.status(403).json({ error: 'Token inválido o expirado.' });
+    return res.status(401).json({ error: 'Token inválido o expirado.' });
   }
 };
 

@@ -57,45 +57,24 @@ const bibliotecaRepository = {
   },
 
   // Insertar o actualizar el estado en items_biblioteca
-  guardarItemBiblioteca: async (id_usuario, id_cancion, estado, es_favorito, puntuacion) => {
+  guardarItemBiblioteca: async (id_usuario, id_cancion, estado, es_favorito, puntuacion, resena) => {
     const query = `
-      INSERT INTO items_biblioteca (id_usuario, id_cancion, estado, es_favorito, puntuacion, actualizado_en)
-      VALUES ($1, $2, $3, $4, $5, now())
+      INSERT INTO items_biblioteca (id_usuario, id_cancion, estado, es_favorito, puntuacion, resena, actualizado_en)
+      VALUES ($1, $2, $3, $4, $5, $6, now())
       ON CONFLICT (id_usuario, id_cancion) 
       DO UPDATE SET 
         estado = EXCLUDED.estado,
         es_favorito = EXCLUDED.es_favorito,
         puntuacion = COALESCE(EXCLUDED.puntuacion, items_biblioteca.puntuacion),
+        resena = COALESCE(EXCLUDED.resena, items_biblioteca.resena),
         actualizado_en = now()
       RETURNING *
     `;
-    const result = await pool.query(query, [id_usuario, id_cancion, estado, es_favorito, puntuacion]);
+    const result = await pool.query(query, [id_usuario, id_cancion, estado, es_favorito, puntuacion, resena ?? null]);
     return result.rows; // Retorna el array crudo siempre
-  }
-
-  , obtenerItemsBiblioteca: async (id_usuario) => {
-    const query = `
-      SELECT 
-        ib.*,
-        c.id_externo,
-        c.fuente,
-        c.tipo,
-        c.titulo,
-        c.nombre_artista,
-        c.genero,
-        c.duracion_seg,
-        c.id_artista_externo,
-        c.id_album_externo,
-        c.portada_url
-      FROM items_biblioteca ib
-      JOIN canciones c ON ib.id_cancion = c.id
-      WHERE ib.id_usuario = $1
-      ORDER BY ib.actualizado_en DESC
-    `;
-    const result = await pool.query(query, [id_usuario]);
-    return result.rows;
   },
-   // Listar todos los ítems de la biblioteca del usuario con metadatos de la canción
+
+  // Listar todos los ítems de la biblioteca del usuario con metadatos de la canción
   obtenerItemsBiblioteca: async (id_usuario) => {
     const query = `
       SELECT 
