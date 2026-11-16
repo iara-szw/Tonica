@@ -35,33 +35,34 @@
   align-items: center;
 }
 
-/* Estilo base de los botones del Header */
+/* Estilo base de los botones del Header (Sin óvalos) */
 .nav-pill {
-  background-color: var(--tonica-pill-bg, #ab8668);
+  background-color: transparent ! important; /* Elimina el fondo de color */
   color: #ffffff;
   text-decoration: none; 
-  padding: 8px 24px; /* Más espacio a los lados para que el texto respire */
-  border-radius: 20px; 
+  padding: 8px 16px; /* Ajusta el espacio alrededor del texto */
   font-size: 0.95rem;
-  font-weight: 400; /* Texto normal (sin negrita) por defecto */
-  white-space: nowrap; /* Fuerza a que el texto quede en un solo renglón */
-  box-shadow: none; /* Elimina cualquier sombra */
+  font-weight: 400; /* Texto normal por defecto */
+  white-space: nowrap; /* Asegura que el texto quede en un solo renglón */
+  box-shadow: none; 
   transition: all 0.2s ease;
 }
 
 /* Estilo al pasar el mouse (hover) */
 .nav-pill:hover {
-  background-color: #c4a485; 
-  font-weight: 600; /* Aplica negrita al tocar/pasar el cursor */
+  background-color: transparent; /* Mantiene el fondo transparente */
+  font-weight: 500; /* Negrita suave */
+  text-decoration: underline; /* Agrega subrayado */
 }
 
 /* Estilo cuando el usuario está en esa página (activo) */
 .nav-pill.active {
-  background-color: #8c7362; 
-  font-weight: 700; /* Aplica negrita fuerte si está seleccionado */
-  box-shadow: none; /* Asegura que la versión activa tampoco tenga sombra */
+  background-color: transparent; /* Mantiene el fondo transparente */
+  font-weight: 500; /* Negrita suave (no exagerada) */
+  text-decoration: underline; /* Subrayado indicador */
+  text-underline-offset: 4px; /* Separa ligeramente la línea del texto */
+  box-shadow: none; 
 }
-
 .profile-circle {
   width: 45px;
   height: 45px;
