@@ -8,7 +8,6 @@ const pool = new Pool({
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   port: parseInt(process.env.DB_PORT) || 5432,
-  ssl: { rejectUnauthorized: false }
-});
+ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false});
 
 export default pool;
