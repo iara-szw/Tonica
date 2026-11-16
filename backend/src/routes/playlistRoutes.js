@@ -47,19 +47,24 @@ router.delete('/:id', authJWT, async (req, res) => {
 
 // POST /api/playlists/:id/items -> Agregar canción a una playlist
 router.post('/:id/items', authJWT, async (req, res) => {
-  const { musica } = req.body;
-  if (!musica || !musica.id_externo || !musica.titulo) {
-    return res.status(400).json({ error: 'Faltan datos obligatorios de la música (id_externo y titulo).' });
+  const id_externo = req.body.id_externo || req.body.musica?.id_externo;
+  const tipo = req.body.tipo || req.body.musica?.tipo || 'track';
+
+  if (!id_externo) {
+    return res.status(400).json({ error: 'El campo id_externo es obligatorio.' });
   }
 
   try {
-    const resultado = await playlistService.agregarCancionAPlaylist(req.params.id, req.user.id, musica);
+    const resultado = await playlistService.agregarCancionAPlaylist(req.params.id, req.user.id, {
+      id_externo,
+      tipo
+    });
     res.status(200).json(resultado);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    const status = err.message.includes('no existe') ? 404 : 400;
+    res.status(status).json({ error: err.message });
   }
 });
-
 // DELETE /api/playlists/:id/items/:id_cancion -> Quitar canción de la playlist
 router.delete('/:id/items/:id_cancion', authJWT, async (req, res) => {
   try {

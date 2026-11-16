@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const MUSICBRAINZ_URL = 'https://musicbrainz.org/ws/2';
+const COVER_ART_URL = 'https://coverartarchive.org/release-group';
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const musicService = {
@@ -28,7 +29,6 @@ const params = { fmt: 'json' };
     } else if (normalizedType === 'track') {
       params.inc = 'artists+releases+tags';
     }
-    
     const response = await axios.get(`${MUSICBRAINZ_URL}/${endpoint}/${id}`, {
       params:params,
         headers: headers
@@ -53,7 +53,8 @@ const params = { fmt: 'json' };
           titulo: album.title,
           tipo: album['primary-type'] || 'Álbum',
           fecha: album['first-release-date'] || 'Desconocida',
-          genero: album.tags && album.tags.length > 0 ? album.tags[0].name : 'General'
+          genero: album.tags && album.tags.length > 0 ? album.tags[0].name : 'General',
+          portada_url: album.id ? `${COVER_ART_URL}/${album.id}/front-250` : null
         }))
       : []
   };
@@ -102,15 +103,17 @@ if (normalizedType === 'album') {
           genero: obtenerGenero(data.tags),
           id_artista_externo: idArtista,
           id_album_externo: data.id,
+          portada_url: `${COVER_ART_URL}/${data.id}/front-500`,
           fecha: data['first-release-date'] || 'Desconocida',
           canciones: canciones
+          
         };
       }
 
 const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
       const idArtista = data['artist-credit']?.[0]?.artist?.id || null;
       const idAlbum = data.releases?.[0]?.['release-group']?.id || null;
-
+      
       return {
         id_externo: data.id,
         titulo: data.title,
@@ -119,19 +122,21 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
         genero: data.tags && data.tags.length > 0 ? data.tags[0].name : 'General',
         id_artista_externo: idArtista,
         id_album_externo: idAlbum,
+        portada_url: idAlbum ? `${COVER_ART_URL}/${idAlbum}/front-250` : null,
         duracion_seg: data.length ? Math.round(data.length / 1000) : null
       };
   }
    catch (error) {
       if (error.response && error.response.status === 503 && retryCount < 3) {
         await delay(1500); 
-        return await musicService.searchMusic(queryTerm, type, retryCount + 1); 
+        return await musicService.searchById(id, type, retryCount + 1); 
       }
       
       throw new Error('El servidor de música externo está saturado o no responde.');
     }
 },
   searchMusic: async (queryTerm, type = 'track', retryCount = 0) => {
+
     try {
       const headers = {
         'User-Agent': 'TonicaApp/1.0.0 (devandroid@example.com)',
@@ -143,17 +148,13 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
 
       if (type === 'artist') {
         endpoint = 'artist';
-        searchField = 'artist';
       } else if (type === 'album') {
         endpoint = 'release-group';
-        searchField = 'release_group';
       }
-      console.log(`${MUSICBRAINZ_URL}/${endpoint}`)
- 
       // 2. Petición por Axios al endpoint correspondiente
       const response = await axios.get(`${MUSICBRAINZ_URL}/${endpoint}`, {
         params: {
-          query: searchTerm,
+          query: queryTerm,
           limit: 20,
           fmt: 'json'
         },
@@ -173,6 +174,7 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
           genero: artist.tags && artist.tags.length > 0 ? artist.tags[0].name : 'General',
           id_artista_externo: artist.id,
           id_album_externo: null,
+          portada_url: null,
           duracion_seg: null
         }));
       } 
@@ -187,6 +189,7 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
           genero: album.tags && album.tags.length > 0 ? album.tags[0].name : 'General',
           id_artista_externo: album['artist-credit']?.[0]?.artist?.id || null,
           id_album_externo: album.id,
+          portada_url: album.id ? `${COVER_ART_URL}/${album.id}/front-250` : null,
           duracion_seg: null
         }));
       }
@@ -196,7 +199,7 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
       return data.recordings.map(track => {
         // Calculamos la duración de milisegundos a segundos si viene el dato
         const duracionSeg = track.length ? Math.round(track.length / 1000) : null;
-        
+        const idAlbum = track.releases?.[0]?.['release-group']?.id || null;
         return {
           id_externo: track.id,
           titulo: track.title,
@@ -205,6 +208,7 @@ const artista = data['artist-credit']?.[0]?.name || 'Artista Desconocido';
           genero: track.tags && track.tags.length > 0 ? track.tags[0].name : 'General',
           id_artista_externo: track['artist-credit']?.[0]?.artist?.id || null,
           id_album_externo: track.releases?.[0]?.['release-group']?.id || null,
+          portada_url: idAlbum ? `${COVER_ART_URL}/${idAlbum}/front-250` : null,
           duracion_seg: duracionSeg
         };
       });

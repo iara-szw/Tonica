@@ -16,7 +16,10 @@ const estadisticasRepository = {
           '{}'::json
         ) AS estados_escucha,
         ROUND(COALESCE(AVG(puntuacion), 0), 1)::FLOAT AS promedio_puntuacion,
-        ROUND(COALESCE(SUM(c.duracion_seg), 0) / 60)::INT AS tiempo_total_minutos,
+        ROUND(COALESCE(
+          SUM(CASE WHEN ib.estado = 'escuchado' THEN c.duracion_seg ELSE 0 END),
+          0
+        ) / 60)::INT AS tiempo_total_minutos,
         COALESCE(
           (SELECT c2.genero FROM items_biblioteca ib2
            JOIN canciones c2 ON ib2.id_cancion = c2.id

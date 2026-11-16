@@ -1,5 +1,6 @@
+import actividadRepository from '../repositories/actividadRepository.js';
 import playlistRepository from '../repositories/playlistRepository.js';
-import bibliotecaRepository from '../repositories/bibliotecaRepository.js';
+import { bibliotecaService } from './bibliotecaService.js';
 
 export const playlistService = {
   listarPlaylistsUsuario: async (id_usuario) => {
@@ -18,7 +19,16 @@ export const playlistService = {
     if (!nombre || nombre.trim() === '') {
       throw new Error('El nombre de la playlist es obligatorio.');
     }
-    return await playlistRepository.crear(id_usuario, nombre.trim(), descripcion);
+
+    const nuevaPlaylist = await playlistRepository.crear(id_usuario, nombre.trim(), descripcion);
+
+    await actividadRepository.registrar(
+      id_usuario,
+      'PLAYLIST_CREADA',
+      `Creó la playlist "${nuevaPlaylist.nombre}"`
+    );
+
+    return nuevaPlaylist;
   },
 
   eliminarPlaylist: async (id_playlist, id_usuario) => {
@@ -26,35 +36,36 @@ export const playlistService = {
     if (!eliminada) {
       throw new Error('No se pudo eliminar la playlist. Verifica que exista y te pertenezca.');
     }
+
+    await actividadRepository.registrar(
+      id_usuario,
+      'PLAYLIST_ELIMINADA',
+      `Eliminó la playlist #${id_playlist}`
+    );
+
     return { mensaje: 'Playlist eliminada exitosamente 🗑️' };
   },
 
-  agregarCancionAPlaylist: async (id_playlist, id_usuario, musicaInput) => {
-    // 1. Validar propiedad de la playlist
+  agregarCancionAPlaylist: async (id_playlist, id_usuario, { id_externo, tipo = 'track' }) => {
     const playlist = await playlistRepository.obtenerPorId(id_playlist, id_usuario);
     if (!playlist) {
       throw new Error('La playlist no existe o no tienes permisos sobre ella.');
     }
 
-    // 2. Garantizar que la canción exista en la caché local (tabla canciones)
-    const { id_externo } = musicaInput;
-    const cancionesExistentes = await bibliotecaRepository.buscarMusicaPorIdExterno(id_externo);
-    let cancion;
+    const contenido = await bibliotecaService.obtenerOCachearMusica(id_externo, tipo);
 
-    if (!cancionesExistentes || cancionesExistentes.length === 0) {
-      const nuevaCancion = await bibliotecaRepository.crearMusicaCache(musicaInput);
-      cancion = nuevaCancion[0];
-    } else {
-      cancion = cancionesExistentes[0];
-    }
-
-    // 3. Vincular canción en la tabla intermedia de la playlist
-    const resultado = await playlistRepository.agregarCancion(id_playlist, cancion.id);
+    const resultado = await playlistRepository.agregarCancion(id_playlist, contenido.id);
     if (!resultado) {
-      return { mensaje: 'La canción ya pertenecía a esta playlist 🎵' };
+      return { mensaje: 'Este elemento ya pertenecía a la playlist 🎵' };
     }
 
-    return { mensaje: 'Canción agregada a la playlist con éxito 🎶', cancion };
+    await actividadRepository.registrar(
+      id_usuario,
+      'PLAYLIST_ITEM_AGREGADO',
+      `Agregó "${contenido.titulo}" a la playlist "${playlist.nombre}"`
+    );
+
+    return { mensaje: 'Agregado a la playlist con éxito 🎶', contenido };
   },
 
   quitarCancionDePlaylist: async (id_playlist, id_cancion, id_usuario) => {
@@ -65,9 +76,15 @@ export const playlistService = {
 
     const resultado = await playlistRepository.quitarCancion(id_playlist, id_cancion);
     if (!resultado) {
-      throw new Error('La canción no se encontraba en esta playlist.');
+      throw new Error('El elemento no se encontraba en esta playlist.');
     }
 
-    return { mensaje: 'Canción removida de la playlist exitosamente ➖' };
+    await actividadRepository.registrar(
+      id_usuario,
+      'PLAYLIST_ITEM_ELIMINADO',
+      `Quitó el ítem #${id_cancion} de la playlist "${playlist.nombre}"`
+    );
+
+    return { mensaje: 'Removido de la playlist exitosamente ➖' };
   }
 };
