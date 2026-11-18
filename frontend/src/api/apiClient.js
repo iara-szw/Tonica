@@ -1,15 +1,15 @@
 import axios from 'axios';
 
 // Configuramos la URL base apuntando a tu Backend local de Express
-const apiClient = axios.create({
-  baseURL: 'http://localhost:5000/api',
+const API = axios.create({
+ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 });
 
 // Interceptor automático para inyectar el Token de seguridad en rutas privadas
-apiClient.interceptors.request.use(
+API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -22,4 +22,13 @@ apiClient.interceptors.request.use(
   }
 );
 
-export default apiClient;
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      localStorage.removeItem('token');
+    }
+    return Promise.reject(error);
+  }
+);
+export default API;

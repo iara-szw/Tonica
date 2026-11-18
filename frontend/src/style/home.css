@@ -1,0 +1,274 @@
+:root {
+  --home-bg: #f4ebe0;
+  --home-title: #4a2410;
+  --home-section: #7a5238;
+  --home-accent: #663519;
+  --home-panel: #ffffff;
+  --home-muted: #9a8372;
+  --home-shadow: 0 6px 18px rgba(74, 36, 16, 0.08);
+  --card-w: 176px;
+}
+#root{
+  width: 100%;
+}
+
+.home-container {
+  min-height: 100vh;
+  background: var(--home-bg);
+  text-align: left; /* pisa el text-align:center heredado de #root */
+}
+
+.main-content {
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+  box-sizing: border-box;
+}
+
+.page-main-title {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--home-title);
+  margin: 0 0 2.5rem;
+}
+
+/* ---------- Secciones ---------- */
+.media-section {
+  margin-bottom: 2.5rem;
+}
+
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--home-section);
+  margin: 0 0 0.9rem 0.5rem;
+  text-align: left;
+}
+
+/* ---------- Carrusel ---------- */
+.media-carousel {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--home-panel);
+  border-radius: 24px;
+  box-shadow: var(--home-shadow);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: #d9c4b0 transparent;
+}
+
+.media-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+.media-carousel::-webkit-scrollbar-thumb {
+  background: #d9c4b0;
+  border-radius: 8px;
+}
+
+/* ---------- Tarjetas ---------- */
+.media-card {
+  /* ancho fijo: el texto largo ya no puede agrandar la tarjeta */
+  flex: 0 0 var(--card-w);
+  width: var(--card-w);
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  scroll-snap-align: start;
+  cursor: pointer;
+  border-radius: 14px;
+  padding: 0.6rem;
+  text-align: left;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.media-card:hover,
+.media-card:focus-visible {
+  transform: translateY(-4px);
+  background: #faf4ec;
+  outline: none;
+}
+
+.media-card:focus-visible {
+  box-shadow: 0 0 0 2px var(--home-accent);
+}
+
+.item-title {
+  margin: 0.7rem 0 0.15rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--home-title);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-subtitle {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--home-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Disco (canciones) ---------- */
+.disc-placeholder {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2b1608 0%, #3b1f0e 45%, #2b1608 46%, #4a2a16 100%);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(74, 36, 16, 0.25);
+  transition: transform 0.6s ease;
+}
+
+.media-card:hover .disc-placeholder {
+  transform: rotate(25deg);
+}
+
+.disc-placeholder img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  /* si la portada no carga, no mostrar el texto del alt */
+  font-size: 0;
+  color: transparent;
+}
+
+/* agujero central siempre visible, con o sin portada */
+.disc-placeholder::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--home-bg);
+  border: 3px solid #1d0e04;
+  z-index: 1;
+}
+
+/* el div .disc-hole del JSX queda redundante con el ::after */
+.disc-hole {
+  display: none;
+}
+
+/* ---------- Portada de álbum ---------- */
+.cover-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e8d9c8;
+  box-shadow: 0 4px 12px rgba(74, 36, 16, 0.15);
+}
+
+.cover-wrap > *,
+.cover-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  font-size: 0;
+  color: transparent;
+}
+
+/* ---------- Estados ---------- */
+.loading-text,
+.empty-text {
+  text-align: center;
+  color: var(--home-muted);
+  font-size: 0.95rem;
+  margin: 0.75rem 0 0;
+}
+
+.empty-text {
+  background: var(--home-panel);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: var(--home-shadow);
+}
+
+.error-box {
+  max-width: 520px;
+  margin: 3rem auto;
+  padding: 1.75rem;
+  text-align: center;
+  background: var(--home-panel);
+  border-radius: 20px;
+  box-shadow: var(--home-shadow);
+  color: var(--home-title);
+}
+
+.retry-btn {
+  margin-top: 0.75rem;
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--home-accent);
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.retry-btn:hover {
+  opacity: 0.88;
+}
+
+/* ---------- Skeleton ---------- */
+.skeleton {
+  background: linear-gradient(90deg, #f0e4d6 25%, #f8f0e6 50%, #f0e4d6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.skeleton-disc {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+}
+
+.skeleton-album {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+}
+
+.skeleton-line {
+  height: 12px;
+  margin-top: 0.7rem;
+  border-radius: 6px;
+}
+
+.skeleton-line-short {
+  width: 60%;
+  margin-top: 0.4rem;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+  .media-card, .disc-placeholder { transition: none; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  :root { --card-w: 140px; }
+  .main-content { padding: 1.25rem 1rem 3rem; }
+  .page-main-title { font-size: 1.6rem; margin-bottom: 1.75rem; }
+  .media-carousel { padding: 0.9rem; gap: 0.75rem; }
+}
