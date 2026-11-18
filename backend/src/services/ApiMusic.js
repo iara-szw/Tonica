@@ -57,8 +57,7 @@ export const musicService = {
       if (normalizedType === 'album') {
         const artista = data['artist-credit']?.[0]?.name || data['artist-credit']?.[0]?.artist?.name || 'Artista Desconocido';
         const canciones = [];
-        const primerReleaseId = data.releases?.[0]?.id;
-
+const primerReleaseId = data.releases && data.releases.length > 0 ? data.releases[0].id : null;
         if (primerReleaseId) {
           try {
             const releaseRes = await axios.get(`${MUSICBRAINZ_URL}/release/${primerReleaseId}`, {

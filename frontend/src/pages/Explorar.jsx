@@ -29,6 +29,31 @@ const normalizarLista = (data) => {
   return data?.resultados ?? data?.results ?? [];
 };
 
+const leerGenerosFavoritos = (raw) => {
+  let valor = raw;
+
+  if (typeof valor === 'string') {
+    const texto = valor.trim();
+    if (texto.startsWith('{') || texto.startsWith('[')) {
+      try {
+        valor = JSON.parse(texto);
+      } catch {
+        valor = texto;
+      }
+    }
+  }
+
+  if (Array.isArray(valor)) return [...new Set(valor.map((g) => String(g).trim()).filter(Boolean))];
+  if (valor && typeof valor === 'object') {
+    const lista = valor.generos ?? valor.generos_favoritos ?? [];
+    return [...new Set((Array.isArray(lista) ? lista : []).map((g) => String(g).trim()).filter(Boolean))];
+  }
+  if (typeof valor === 'string' && valor.trim()) {
+    return [...new Set(valor.split(',').map((g) => g.trim()).filter(Boolean))];
+  }
+  return [];
+};
+
 const getAnio = (item) => {
   const bruto = item.anio ?? item.year ?? item.fecha ?? item.fecha_lanzamiento ?? null;
   if (!bruto) return null;
