@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/apiClient';
 import Header from '../componentes/Header';
 import '../style/detalle.css';
@@ -39,8 +39,11 @@ const Estrellas = ({ valor, onElegir, deshabilitado }) => {
 };
 
 // ---------- Componente Principal ----------
+
 const Detalle = () => {
-  const { tipo, id } = useParams();
+  const params = useParams();
+  const tipo = (params.tipo ?? params.type ?? '').toLowerCase();
+  const id = params.id;
   const navigate = useNavigate();
   const logueado = !!localStorage.getItem('token');
 
