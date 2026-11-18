@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 // import Login from './pages/Login';
 // import Registro from './pages/Registro';
 import Home from './pages/Home';
-// import Explorar from './pages/Explorar';
-// import Detalle from './pages/Detalle';
+import Explorar from './pages/Explorar';
+import Detalle from './pages/Detalle';
 // import Biblioteca from './pages/Biblioteca';
 // import Playlists from './pages/Playlists';
 // import Perfil from './pages/Perfil';
@@ -18,8 +18,8 @@ function App() {
         {/* <Route path="/login" element={<Login />} />
         <Route path="/Registro" element={<Registro />} /> */}
         <Route path="/" element={<Home />} />
-        {/* <Route path="/explorar" element={<Explorar />} />
-        <Route path="/detalle/:type/:id" element={<Detalle />} />
+        <Route path="/explorar" element={<Explorar />} />
+        <Route path="/detalle/:type/:id" element={<Detalle />} /> 
 
         {/* Rutas protegidas (requieren sesión activa) */}
         {/* <Route element={<RutaProtegida />}>

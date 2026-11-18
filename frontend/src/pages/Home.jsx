@@ -1,51 +1,85 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/apiClient';
-import Portada from '../componentes/Portada'
+import Portada from '../componentes/Portada';
 import Header from '../componentes/Header';
 import '../style/home.css';
 
-// Lista de términos de búsqueda al azar para dar la sensación de contenido "Random"
-const busquedasRandom = ['rock', 'pop', 'indie', 'jazz', 'radiohead', 'queen', 'cerati', 'charly'];
+const BUSQUEDAS_RANDOM = ['rock', 'pop', 'indie', 'jazz', 'radiohead', 'queen', 'cerati', 'charly'];
+const CANTIDAD = 20;
 
-const obtenerTerminoRandom = () => {
-  const indice = Math.floor(Math.random() * busquedasRandom.length);
-  return busquedasRandom[indice];
+// Devuelve dos términos distintos
+const obtenerTerminosRandom = () => {
+  const mezcla = [...BUSQUEDAS_RANDOM].sort(() => Math.random() - 0.5);
+  return [mezcla[0], mezcla[1]];
 };
+
+// Acepta un array directo o { resultados | results: [...] }
+const normalizarLista = (data) => {
+  if (Array.isArray(data)) return data;
+  return data?.resultados ?? data?.results ?? [];
+};
+
+const SkeletonCarrusel = ({ tipo }) => (
+  <div className="media-carousel" aria-hidden="true">
+    {Array.from({ length: CANTIDAD }).map((_, i) => (
+      <div key={i} className="media-card">
+        <div className={`skeleton ${tipo === 'track' ? 'skeleton-disc' : 'skeleton-album'}`} />
+        <div className="skeleton skeleton-line" />
+        <div className="skeleton skeleton-line skeleton-line-short" />
+      </div>
+    ))}
+  </div>
+);
 
 const Home = () => {
   const navigate = useNavigate();
   const [canciones, setCanciones] = useState([]);
   const [albumes, setAlbumes] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const cargarContenidoExplorar = async () => {
-      try {
-        // 1. Buscar canciones (tracks) aleatorias
-        const terminoCanciones = obtenerTerminoRandom();
-        const resCanciones = await API.get(`/musica/search?q=${terminoCanciones}&type=track`);
-        
-        // 2. Buscar álbumes (releases/album) aleatorios
-        const terminoAlbumes = obtenerTerminoRandom();
-        const resAlbumes = await API.get(`/musica/search?q=${terminoAlbumes}&type=album`);
+  const cargarContenido = useCallback(async (signal) => {
+    setCargando(true);
+    setError(null);
+    const [terminoCanciones, terminoAlbumes] = obtenerTerminosRandom();
 
-        // Tomar solo 6 resultados para que coincida con el diseño visual
-        setCanciones(resCanciones.data.slice(0, 6));
-        setAlbumes(resAlbumes.data.slice(0, 6));
-      } catch (error) {
-        console.error('Error al cargar contenido de inicio:', error);
-      } finally {
-        setCargando(false);
-      }
-    };
+    try {
+      const [resCanciones, resAlbumes] = await Promise.all([
+        API.get('/musica/search', { params: { q: terminoCanciones, type: 'track' }, signal }),
+        API.get('/musica/search', { params: { q: terminoAlbumes, type: 'album' }, signal }),
+      ]);
 
-    cargarContenidoExplorar();
+      setCanciones(normalizarLista(resCanciones.data).slice(0, CANTIDAD));
+      setAlbumes(normalizarLista(resAlbumes.data).slice(0, CANTIDAD));
+    } catch (err) {
+      if (err.code === 'ERR_CANCELED') return;
+      console.error('Error al cargar contenido de inicio:', err);
+      setError(
+        err.response?.data?.message ||
+          'No pudimos cargar la música. Si el servidor estaba dormido, puede tardar un poco: probá de nuevo.'
+      );
+    } finally {
+      if (!signal?.aborted) setCargando(false);
+    }
   }, []);
 
-  const irAlDetalle = (tipo, idExterno) => {
-    navigate(`/detalle/${tipo}/${idExterno}`);
+  useEffect(() => {
+    const controller = new AbortController();
+    cargarContenido(controller.signal);
+    return () => controller.abort();
+  }, [cargarContenido]);
+
+  const irAlDetalle = (tipo, idExterno) => navigate(`/detalle/${tipo}/${idExterno}`);
+
+  const onKeyActivar = (e, tipo, id) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      irAlDetalle(tipo, id);
+    }
   };
+
+  const renderVacio = () => <p className="empty-text">No encontramos resultados por ahora.</p>;
 
   return (
     <div className="home-container">
@@ -54,52 +88,78 @@ const Home = () => {
       <main className="main-content">
         <h2 className="page-main-title">Vos y tu musica</h2>
 
-        {cargando ? (
-          <p className="loading-text">Buscando nueva música para ti...</p>
+        {error ? (
+          <div className="error-box" role="alert">
+            <p>{error}</p>
+            <button type="button" className="retry-btn" onClick={() => cargarContenido()}>
+              Reintentar
+            </button>
+          </div>
         ) : (
           <>
-            {/* Sección: Canciones para explorar */}
+            {/* Canciones para explorar */}
             <section className="media-section">
               <h3 className="section-title">Canciones para explorar</h3>
-              <div className="media-carousel">
-                {canciones.map((item) => (
-                  <article 
-                    key={`song-${item.id_externo}`} 
-                    className="media-card"
-                    onClick={() => irAlDetalle('track', item.id_externo)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className="disc-placeholder">
-                      {item.portada_url ? (
-                        <img src={item.portada_url} alt={`Portada de ${item.titulo}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-                      ) : (
-                        <div className="disc-hole"></div>
-                      )}
-                    </div>
-                    <h4 className="item-title">{item.titulo}</h4>
-                    <p className="item-subtitle">{item.nombre_artista || 'Artista Desconocido'}</p>
-                  </article>
-                ))}
-              </div>
+              {cargando ? (
+                <>
+                  <SkeletonCarrusel tipo="track" />
+                  <p className="loading-text">Buscando nueva música para vos...</p>
+                </>
+              ) : canciones.length === 0 ? (
+                renderVacio()
+              ) : (
+                <div className="media-carousel">
+                  {canciones.map((item, i) => (
+                    <article
+                      key={`song-${item.id_externo ?? i}`}
+                      className="media-card"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => irAlDetalle('track', item.id_externo)}
+                      onKeyDown={(e) => onKeyActivar(e, 'track', item.id_externo)}
+                    >
+                      <div className="disc-placeholder">
+                        {item.portada_url ? (
+                          <img src={item.portada_url} alt={`Portada de ${item.titulo}`} loading="lazy" />
+                        ) : (
+                          <div className="disc-hole" />
+                        )}
+                      </div>
+                      <h4 className="item-title" title={item.titulo}>{item.titulo}</h4>
+                      <p className="item-subtitle">{item.nombre_artista || 'Artista desconocido'}</p>
+                    </article>
+                  ))}
+                </div>
+              )}
             </section>
 
-            {/* Sección: Álbumes para vos */}
+            {/* Álbumes para vos */}
             <section className="media-section">
               <h3 className="section-title">Albumes para vos</h3>
-              <div className="media-carousel">
-                {albumes.map((item) => (
-                  <article 
-                    key={`album-${item.id_externo}`} 
-                    className="media-card"
-                    onClick={() => irAlDetalle('album', item.id_externo)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                   <Portada alt="{item.titulo}" tipo="track" url="{item.portada_url}"/>
-                    <h4 className="item-title">{item.titulo}</h4>
-                    <p className="item-subtitle">{item.nombre_artista || 'Varios Artistas'}</p>
-                  </article>
-                ))}
-              </div>
+              {cargando ? (
+                <SkeletonCarrusel tipo="album" />
+              ) : albumes.length === 0 ? (
+                renderVacio()
+              ) : (
+                <div className="media-carousel">
+                  {albumes.map((item, i) => (
+                    <article
+                      key={`album-${item.id_externo ?? i}`}
+                      className="media-card"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => irAlDetalle('album', item.id_externo)}
+                      onKeyDown={(e) => onKeyActivar(e, 'album', item.id_externo)}
+                    >
+                      <div className="cover-wrap">
+                        <Portada alt={`Portada de ${item.titulo}`} tipo="album" url={item.portada_url} />
+                      </div>
+                      <h4 className="item-title" title={item.titulo}>{item.titulo}</h4>
+                      <p className="item-subtitle">{item.nombre_artista || 'Varios artistas'}</p>
+                    </article>
+                  ))}
+                </div>
+              )}
             </section>
           </>
         )}
