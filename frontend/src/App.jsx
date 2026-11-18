@@ -6,7 +6,8 @@ import Explorar from './pages/Explorar';
 import Detalle from './pages/Detalle';
 import Mixes from './pages/Playlists';
 // import Biblioteca from './pages/Biblioteca';
- import Perfil from './pages/Perfil';
+import Playlist from './pages/Playlist';
+import Perfil from './pages/Perfil';
 // import Estadisticas from './pages/Estadisticas';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/explorar" element={<Explorar />} />
         <Route path="/detalle/:type/:id" element={<Detalle />} />
         <Route path="/perfil" element={<Perfil />} />
+        <Route path="/playlist" element={<Playlist />} />
 
         {/* Mis mixes */}
         <Route path="/mixes" element={<Mixes />} />
@@ -32,7 +34,8 @@ function App() {
         </Route> */}
 
         {/* Cualquier ruta desconocida */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* <Route path="*" element={<Navigate to="/" replace />} />
+         */}
       </Routes>
     </BrowserRouter>
   );

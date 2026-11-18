@@ -14,7 +14,8 @@
   min-height: 100vh;
   background: var(--pf-bg);
   color: var(--pf-text);
-  text-align: left; /* pisa el text-align:center heredado de #root */
+  text-align: left;
+  /* pisa el text-align:center heredado de #root */
 }
 
 .perfil-main {
@@ -86,6 +87,7 @@
   font-size: 2.8rem;
   font-weight: 600;
   color: #fff;
+  position: absolute;
 }
 
 .perfil-avatar img {
@@ -104,6 +106,7 @@
 
 .perfil-correo {
   margin: 0;
+  margin-top: 5%;
   font-size: 0.95rem;
   color: var(--pf-muted);
   overflow-wrap: anywhere;
@@ -160,7 +163,7 @@
   color: var(--pf-brown);
 }
 
-.perfil-card-body > .perfil-btn {
+.perfil-card-body>.perfil-btn {
   margin-top: 1.5rem;
 }
 
@@ -404,7 +407,9 @@
 }
 
 @keyframes perfil-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---------- Actividad ---------- */
@@ -548,8 +553,13 @@
 }
 
 @keyframes perfil-shimmer {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
 }
 
 /* ---------- Toast ---------- */
@@ -570,29 +580,61 @@
 }
 
 @keyframes perfil-toast {
-  from { opacity: 0; transform: translate(-50%, 12px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .perfil-skeleton,
   .perfil-spinner,
-  .perfil-toast { animation: none; }
+  .perfil-toast {
+    animation: none;
+  }
+
   .perfil-btn,
   .perfil-campo input,
-  .perfil-campo textarea { transition: none; }
+  .perfil-campo textarea {
+    transition: none;
+  }
 }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
-  .perfil-layout { grid-template-columns: minmax(0, 1fr); }
+  .perfil-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 560px) {
-  .perfil-main { padding: 1rem 1rem 3rem; }
-  .perfil-card-body { padding: 0 1.25rem 1.5rem; }
-  .perfil-actividad { padding: 1.25rem 1rem; }
-  .perfil-banner { height: 100px; }
-  .perfil-form-botones { flex-direction: column-reverse; }
-  .perfil-form-botones .perfil-btn { width: 100%; }
+  .perfil-main {
+    padding: 1rem 1rem 3rem;
+  }
+
+  .perfil-card-body {
+    padding: 0 1.25rem 1.5rem;
+  }
+
+  .perfil-actividad {
+    padding: 1.25rem 1rem;
+  }
+
+  .perfil-banner {
+    height: 100px;
+  }
+
+  .perfil-form-botones {
+    flex-direction: column-reverse;
+  }
+
+  .perfil-form-botones .perfil-btn {
+    width: 100%;
+  }
 }
