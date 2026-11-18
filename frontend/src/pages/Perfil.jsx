@@ -211,7 +211,7 @@ const Perfil = () => {
     setLento(false);
     setError(null);
 
-    API.get('/auth/profile', { signal: controller.signal })
+    API.get('/auth/perfil', { signal: controller.signal })
       .then((res) => setPerfil(desenvolver(res.data)))
       .catch((err) => {
         if (err.code === 'ERR_CANCELED') return;
@@ -354,7 +354,7 @@ const Perfil = () => {
     setGuardando(true);
     setErrorForm(null);
     try {
-      const { data } = await API.put('/auth/profile', cambios);
+      const { data } = await API.put('/auth/perfil', cambios);
       const devuelto = desenvolver(data);
       const nuevo = {
         ...perfil,
