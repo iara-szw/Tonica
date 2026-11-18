@@ -4,10 +4,10 @@ import API from '../api/apiClient';
 import Header from '../componentes/Header';
 import '../style/playlist.css';
 
-// Acepta un array directo o { playlists | resultados: [...] }
+// Acepta un array directo o { mixes | playlists | resultados: [...] }
 const normalizarLista = (data) => {
   if (Array.isArray(data)) return data;
-  return data?.playlists ?? data?.resultados ?? data?.items ?? [];
+  return data?.mixes ?? data?.playlist ?? data?.resultados ?? data?.items ?? [];
 };
 
 const cantidadDe = (mix) =>
@@ -46,7 +46,7 @@ const MisMixes = () => {
     setCargando(true);
     setError(null);
     try {
-      const res = await API.get('/playlists', { signal });
+      const res = await API.get('/playlist', { signal });
       setMixes(normalizarLista(res.data));
     } catch (err) {
       if (err.code === 'ERR_CANCELED') return;
@@ -84,7 +84,7 @@ const MisMixes = () => {
     setGuardando(true);
     setErrorForm(null);
     try {
-      await API.post('/playlists', {
+      await API.post('/playlist', {
         nombre: nombre.trim(),
         ...(descripcion.trim() && { descripcion: descripcion.trim() }),
       });
@@ -102,7 +102,7 @@ const MisMixes = () => {
     const anterior = mixes;
     setMixes((lista) => lista.filter((m) => m.id !== mix.id));
     try {
-      await API.delete(`/playlists/${mix.id}`);
+      await API.delete(`/playlist/${mix.id}`);
     } catch (err) {
       setMixes(anterior);
       setError(mensajeError(err, 'No pudimos eliminar el mix. Probá de nuevo.'));
