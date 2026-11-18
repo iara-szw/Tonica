@@ -24,7 +24,6 @@ const SKELETONS = 12;
 
 const terminoRandom = () => SUGERENCIAS[Math.floor(Math.random() * SUGERENCIAS.length)];
 
-// Acepta un array directo o { resultados | results: [...] }
 const normalizarLista = (data) => {
   if (Array.isArray(data)) return data;
   return data?.resultados ?? data?.results ?? [];
@@ -54,7 +53,7 @@ const ordenar = (lista, orden) => {
         const ya = Number(getAnio(a));
         const yb = Number(getAnio(b));
         if (!ya && !yb) return 0;
-        if (!ya) return 1; // sin año siempre al final
+        if (!ya) return 1;
         if (!yb) return -1;
         return (ya - yb) * dir;
       });
@@ -80,16 +79,15 @@ const Explorar = () => {
   const [error, setError] = useState(null);
   const [reintentos, setReintentos] = useState(0);
 
-  // Término por defecto cuando no se busca nada (se elige una sola vez)
   const [terminoDefault] = useState(terminoRandom);
 
-  // Debounce de la búsqueda
+  // Debounce ajustado a 550ms para evitar ráfagas al escribir
   useEffect(() => {
-    const id = setTimeout(() => setTermino(busqueda.trim()), 500);
+    const id = setTimeout(() => setTermino(busqueda.trim()), 550);
     return () => clearTimeout(id);
   }, [busqueda]);
 
-  // Carga de resultados
+  // Carga de resultados blindada
   useEffect(() => {
     const controller = new AbortController();
     const avisoLento = setTimeout(() => setLento(true), 5000);
@@ -105,13 +103,16 @@ const Explorar = () => {
       params: { q: termino || terminoDefault, type: tipo },
       signal: controller.signal,
     })
-      .then((res) => setResultados(normalizarLista(res.data)))
+      .then((res) => {
+        setResultados(normalizarLista(res.data));
+      })
       .catch((err) => {
-        if (err.code === 'ERR_CANCELED') return;
+        if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return;
         console.error('Error al buscar música:', err);
         setError(
-          err.response?.data?.message ||
-            'No pudimos cargar los resultados. Si el servidor estaba dormido, puede tardar un poco: probá de nuevo.'
+          err.response?.status === 503 || err.response?.status === 429
+            ? 'El servicio de música está temporalmente saturado. Espera unos segundos y reintenta.'
+            : 'No pudimos cargar los resultados. Probá de nuevo.'
         );
       })
       .finally(() => {
@@ -128,7 +129,6 @@ const Explorar = () => {
     };
   }, [tipo, termino, terminoDefault, reintentos]);
 
-  // Géneros disponibles según lo que devolvió el backend
   const generos = useMemo(() => {
     const set = new Set(resultados.map((r) => r.genero).filter(Boolean));
     return [...set].sort((a, b) => comparar(a, b));
@@ -141,8 +141,7 @@ const Explorar = () => {
 
   const lista = filtrados.slice(0, visibles);
   const tipoActual = TIPOS.find((t) => t.valor === tipo);
-
-  const tituloSeccion = termino ? `Resultados para “${termino}”` : tipoActual.titulo;
+  const tituloSeccion = termino ? `Resultados para "${termino}"` : tipoActual.titulo;
 
   const irAlDetalle = (item) => navigate(`/detalle/${tipo}/${item.id_externo}`);
 
@@ -159,12 +158,10 @@ const Explorar = () => {
   return (
     <div className="explorar-container">
       <Header />
-
       <main className="explorar-main">
         <div className="explorar-header">
           <h2 className="explorar-title">Explorar</h2>
-
-          <div className="explorar-tabs" role="tablist" aria-label="Tipo de contenido">
+          <div className="explorar-tabs" role="tablist">
             {TIPOS.map((t) => (
               <button
                 key={t.valor}
@@ -180,7 +177,6 @@ const Explorar = () => {
           </div>
         </div>
 
-        {/* Barra de búsqueda y filtros */}
         <div className="explorar-toolbar">
           <label className="explorar-search">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -192,7 +188,6 @@ const Explorar = () => {
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder={tipo === 'track' ? 'Buscar canciones o artistas...' : 'Buscar albumes o artistas...'}
-              aria-label="Buscar"
             />
           </label>
 
@@ -204,7 +199,6 @@ const Explorar = () => {
                 setGenero(e.target.value);
                 setVisibles(POR_PAGINA);
               }}
-              aria-label="Filtrar por género"
             >
               <option value="">Todos los géneros</option>
               {generos.map((g) => (
@@ -217,7 +211,6 @@ const Explorar = () => {
             className="explorar-select"
             value={orden}
             onChange={(e) => setOrden(e.target.value)}
-            aria-label="Ordenar por"
           >
             {ORDENES.map((o) => (
               <option key={o.valor} value={o.valor}>{o.etiqueta}</option>
@@ -254,15 +247,11 @@ const Explorar = () => {
                     </div>
                   ))}
                 </div>
-                {lento && (
-                  <p className="explorar-aviso">
-                    El servidor está despertando, puede tardar hasta un minuto...
-                  </p>
-                )}
+                {lento && <p className="explorar-aviso">Cargando catálogo, puede tardar un poco...</p>}
               </>
             ) : filtrados.length === 0 ? (
               <div className="explorar-estado">
-                <p>No encontramos resultados{termino ? ` para “${termino}”` : ''}.</p>
+                <p>No encontramos resultados{termino ? ` para "${termino}"` : ''}.</p>
                 {(busqueda || genero) && (
                   <button
                     type="button"
@@ -288,13 +277,11 @@ const Explorar = () => {
                     >
                       {tipo === 'track' ? (
                         <div className="explorar-disc">
-                          {item.portada_url && (
-                            <img src={item.portada_url} alt={`Portada de ${item.titulo}`} loading="lazy" />
-                          )}
+                          {item.portada_url && <img src={item.portada_url} alt="Portada" loading="lazy" />}
                         </div>
                       ) : (
                         <div className="explorar-cover">
-                          <Portada alt={`Portada de ${item.titulo}`} tipo="album" url={item.portada_url} />
+                          <Portada alt="Portada" tipo="album" url={item.portada_url} />
                         </div>
                       )}
                       <h4 className="explorar-item-title" title={item.titulo}>{item.titulo}</h4>
@@ -302,14 +289,9 @@ const Explorar = () => {
                     </button>
                   ))}
                 </div>
-
                 {visibles < filtrados.length && (
                   <div className="explorar-more">
-                    <button
-                      type="button"
-                      className="explorar-btn is-outline"
-                      onClick={() => setVisibles((v) => v + POR_PAGINA)}
-                    >
+                    <button type="button" className="explorar-btn is-outline" onClick={() => setVisibles((v) => v + POR_PAGINA)}>
                       Ver más
                     </button>
                   </div>
