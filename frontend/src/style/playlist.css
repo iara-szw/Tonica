@@ -1,0 +1,293 @@
+/* ===== Mis mixes — Tónica ===== */
+.mixes-container {
+  --mx-header: #66341a;
+  --mx-bg: #efe3d3;
+  --mx-card: #faf7f2;
+  --mx-chip: #f3e4cf;
+  --mx-track: #e9dcc9;
+  --mx-tan: #b8966b;
+  --mx-clay: #9a6a4c;
+  --mx-ink: #4a2410;
+  --mx-muted: #9b7b62;
+  --mx-danger: #a63a2b;
+  --mx-shadow: 0 6px 22px rgba(102, 52, 26, 0.1);
+
+  min-height: 100vh;
+  background: var(--mx-bg);
+  color: var(--mx-ink);
+}
+
+.mixes-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.mixes-title {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 500;
+  margin: 8px 0 28px;
+  color:#4a2410;
+}
+
+/* ---------- Barra superior ---------- */
+.mixes-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+.mixes-count {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--mx-muted);
+}
+
+/* ---------- Botones ---------- */
+.mixes-btn {
+  border: 1.5px solid var(--mx-header);
+  border-radius: 999px;
+  padding: 11px 22px;
+  background: var(--mx-header);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.mixes-btn:hover { filter: brightness(1.15); }
+.mixes-btn:disabled { opacity: 0.55; cursor: default; filter: none; }
+
+.mixes-btn:focus-visible,
+.mix-open:focus-visible,
+.mix-delete:focus-visible {
+  outline: 2px solid var(--mx-tan);
+  outline-offset: 3px;
+}
+
+.mixes-btn-ghost {
+  background: transparent;
+  color: var(--mx-header);
+}
+
+/* ---------- Formulario ---------- */
+.mixes-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 560px;
+  margin: 0 auto 22px;
+  padding: 22px 24px;
+  background: var(--mx-card);
+  border-radius: 20px;
+  box-shadow: var(--mx-shadow);
+}
+
+.mixes-form label {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mixes-form input,
+.mixes-form textarea {
+  padding: 11px 14px;
+  border: 1.5px solid var(--mx-track);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--mx-ink);
+  font: inherit;
+  resize: vertical;
+}
+
+.mixes-form input:focus,
+.mixes-form textarea:focus {
+  outline: none;
+  border-color: var(--mx-tan);
+  box-shadow: 0 0 0 3px rgba(184, 150, 107, 0.28);
+}
+
+.mixes-form-error {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--mx-danger);
+}
+
+.mixes-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ---------- Panel principal ---------- */
+.mixes-panel {
+  min-height: 240px;
+  padding: 28px;
+  background: var(--mx-card);
+  border-radius: 24px;
+  box-shadow: var(--mx-shadow);
+}
+
+.mixes-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 18px;
+}
+
+/* ---------- Tarjeta de mix ---------- */
+.mix-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 16px 10px;
+  background: var(--mx-chip);
+  border-radius: 20px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.mix-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--mx-shadow);
+}
+
+.mix-open {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 14px;
+}
+
+/* Vinilo con surcos, como los discos de Home */
+.mix-disc {
+  flex: none;
+  width: 88px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--mx-chip) 0 6%, var(--mx-tan) 7% 21%, transparent 22%),
+    repeating-radial-gradient(circle, #2a1408 0 2px, #3a1f0e 2px 4px);
+  box-shadow: var(--mx-shadow);
+  transition: transform 0.6s ease;
+}
+
+.mix-card:hover .mix-disc { transform: rotate(80deg); }
+
+.mix-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mix-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.mix-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.85rem;
+  color: var(--mx-muted);
+}
+
+.mix-chip {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--mx-card);
+  color: var(--mx-clay);
+  font-size: 0.8rem;
+}
+
+.mix-delete {
+  align-self: flex-end;
+  padding: 2px 6px;
+  border: 0;
+  background: none;
+  color: var(--mx-danger);
+  font: inherit;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+/* ---------- Estados ---------- */
+.mixes-loading {
+  margin: 22px 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--mx-muted);
+}
+
+.mixes-error,
+.mixes-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 56px 16px;
+  text-align: center;
+}
+
+.mixes-error p { margin: 0; color: var(--mx-danger); }
+.mixes-empty p { margin: 0; color: var(--mx-muted); max-width: 380px; }
+.mixes-empty .mixes-empty-title { color: var(--mx-ink); font-size: 1.1rem; font-weight: 600; }
+
+/* ---------- Skeleton ---------- */
+.mix-skel-card { flex-direction: row; align-items: center; gap: 16px; padding: 16px; }
+.mix-skel-card:hover { transform: none; box-shadow: none; }
+
+.mix-skel {
+  background: linear-gradient(90deg, var(--mx-track) 25%, #f6ecdd 50%, var(--mx-track) 75%);
+  background-size: 200% 100%;
+  animation: mix-shimmer 1.4s linear infinite;
+}
+
+.mix-skel-disc { flex: none; width: 88px; aspect-ratio: 1; border-radius: 50%; }
+.mix-skel-text { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.mix-skel-line { height: 14px; border-radius: 8px; }
+.mix-skel-line-short { width: 55%; }
+
+@keyframes mix-shimmer {
+  to { background-position: -200% 0; }
+}
+
+/* ---------- Responsive y accesibilidad ---------- */
+@media (max-width: 640px) {
+  .mixes-main { padding: 20px 14px 48px; }
+  .mixes-title { font-size: 1.8rem; }
+  .mixes-panel { padding: 16px; }
+  .mixes-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mix-card, .mix-disc { transition: none; }
+  .mix-card:hover { transform: none; }
+  .mix-card:hover .mix-disc { transform: none; }
+  .mix-skel { animation: none; }
+}
