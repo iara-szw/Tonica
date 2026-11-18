@@ -5,7 +5,7 @@ import '../style/header.css';
 const ENLACES = [
   { to: '/', etiqueta: 'Home', end: true },
   { to: '/explorar', etiqueta: 'Explorar' },
-  { to: '/playlist', etiqueta: 'Mis mixes' },
+  { to: '/mixes', etiqueta: 'Mis mixes' },
 ];
 
 const ENLACES_USUARIO = [
