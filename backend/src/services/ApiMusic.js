@@ -26,7 +26,7 @@ export const musicService = {
       } else if (normalizedType === 'album') {
         params.inc = 'artists+releases+tags';
       } else if (normalizedType === 'track') {
-        params.inc = 'artists+releases+tags';
+        params.inc = 'artists+releases+release-groups+tags';
       }
 
       const response = await axios.get(`${MUSICBRAINZ_URL}/${endpoint}/${id}`, { params, headers });
