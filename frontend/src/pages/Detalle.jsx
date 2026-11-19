@@ -166,6 +166,9 @@ const Detalle = () => {
 
   const { detalle, albumInfo, cargando, error } = data;
   const idExterno = detalle?.id_externo ?? id;
+  const detalleVisual = tipo === 'track'
+    ? { ...detalle, portada_url: albumInfo?.portada_url || detalle?.portada_url }
+    : detalle;
 
   // --- Carga del detalle ---
   useEffect(() => {
@@ -455,7 +458,7 @@ const Detalle = () => {
           <>
             <section className="detalle-card">
               <div className="detalle-visual">
-                <Visual tipo={tipo} detalle={detalle} />
+                <Visual tipo={tipo} detalle={detalleVisual} />
               </div>
 
               <div className="detalle-info">
@@ -534,7 +537,7 @@ const Detalle = () => {
                           className="detalle-link"
                           onClick={() => navigate(`/detalle/album/${detalle.id_album_externo}`)}
                         >
-                          {albumInfo?.titulo ?? 'Ver álbum'}
+                          {albumInfo?.titulo ?? detalle.nombre_album ?? 'Ver álbum'}
                         </button>
                       ) : (
                         '—'
@@ -633,22 +636,27 @@ const Detalle = () => {
 
                     {ui.menuAbierto && (
                       <div className="detalle-menu" role="menu">
-                        {playlists === null ? (
+                        {playlists === null && (
                           <p className="detalle-menu-vacio">Cargando...</p>
-                        ) : playlists.length === 0 ? (
+                        )}
+                        {playlists !== null && playlists.length === 0 && (
                           <>
                             <p className="detalle-menu-vacio">Todavía no tenés playlists.</p>
                             <button type="button" role="menuitem" onClick={() => navigate('/playlist')}>
                               Crear una playlist
                             </button>
                           </>
-                        ) : (
-                          playlists.map((p) => (
-                            <button key={p.id} type="button" role="menuitem" onClick={() => agregarAPlaylist(p.id, p.nombre)}>
-                              {p.nombre}
-                            </button>
-                          ))
                         )}
+                        {playlists !== null && playlists.length > 0 && playlists.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            role="menuitem"
+                            onClick={() => agregarAPlaylist(p.id, p.nombre)}
+                          >
+                            {p.nombre}
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
