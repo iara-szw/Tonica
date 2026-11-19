@@ -7,6 +7,9 @@ import Detalle from './pages/Detalle';
 import Playlist from './pages/Playlist';
 import Perfil from './pages/Perfil';
 import Estadisticas from './pages/Estadisticas';
+import PlaylistDetalle from './pages/PlaylistDetalle';
+import Biblioteca from './pages/Biblioteca';
+
 
 function App() {
   return (
@@ -16,17 +19,17 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
         <Route path="/explorar" element={<Explorar />} />
-        <Route path="/detalle/:type/:id" element={<Detalle />} /> 
-          <Route path="/perfil" element={<Perfil />} /> 
-
+        <Route path="/detalle/:type/:id" element={<Detalle />} />
+        <Route path="/perfil" element={<Perfil />} />
+        <Route path="/playlist/:id" element={<PlaylistDetalle />} />
         {/* Rutas protegidas (requieren sesión activa) */}
         <Route element={<RutaProtegida />}>
-          {/* <Route path="/biblioteca" element={<Biblioteca />} /> */}
+           <Route path="/biblioteca" element={<Biblioteca />} />
           <Route path="/Playlist" element={<Playlist />} />
           <Route path="/estadisticas" element={<Estadisticas />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
-         
+
       </Routes>
     </BrowserRouter>
   );

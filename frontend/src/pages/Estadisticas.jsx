@@ -1,21 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import API from '../api/apiClient'; 
+import API from '../api/apiClient';
 import Header from '../componentes/Header';
 import '../style/home.css';
-import '../style/estadisticas.css'; 
+import '../style/estadisticas.css';
+
+const ESTADOS = [
+  { clave: 'quiero_escuchar', label: 'Quiero escuchar' },
+  { clave: 'escuchando', label: 'Escuchando' },
+  { clave: 'escuchado', label: 'Escuchado' },
+];
+
+// Solo presentación: 135 -> "2 h 15 min"
+const formatearTiempo = (min) => {
+  if (min < 60) return null;
+  const h = Math.floor(min / 60);
+  const m = Math.round(min % 60);
+  return m ? `${h} h ${m} min` : `${h} h`;
+};
 
 const Estadisticas = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-useEffect(() => {
+
+  useEffect(() => {
     const fetchEstadisticas = async () => {
       try {
-        const response = await API.get('/estadisticas'); 
+        const response = await API.get('/estadisticas');
         setData(response.data);
       } catch (err) {
-        console.error("Error al cargar estadísticas:", err);
-        setError("No se pudieron cargar las estadísticas. Intenta nuevamente.");
+        console.error('Error al cargar estadísticas:', err);
+        setError('No se pudieron cargar las estadísticas. Intenta nuevamente.');
       } finally {
         setLoading(false);
       }
@@ -26,11 +41,12 @@ useEffect(() => {
 
   if (loading) {
     return (
-      <div className="home-container">
+      <div className="home-container estadisticas-page">
         <Header />
         <main className="main-content loading-container">
-          <h2 className="page-main-title">Cargando tus estadísticas...</h2>
-          <div className="spinner"></div>
+          <div className="spinner" aria-hidden="true"></div>
+          <h2 className="est-loading-title" role="status">Cargando tus estadísticas...</h2>
+          <p className="est-loading-hint">Si el servidor estaba dormido, puede tardar un poco.</p>
         </main>
       </div>
     );
@@ -38,10 +54,10 @@ useEffect(() => {
 
   if (error) {
     return (
-      <div className="home-container">
+      <div className="home-container estadisticas-page">
         <Header />
         <main className="main-content">
-          <div className="error-box">
+          <div className="error-box" role="alert">
             <p>{error}</p>
           </div>
         </main>
@@ -52,64 +68,98 @@ useEffect(() => {
   // Prevenir crasheos si data no está definido
   if (!data) return null;
 
+  const estadisticas = data.estadisticas || {};
+  const estadosEscucha = estadisticas.estados_escucha || {};
+
+  // Fallbacks a 0 / '-' aseguran que se muestre algo aunque el backend mande null
+  const minutos = estadisticas.tiempo_total_minutos || 0;
+  const promedio = Number(estadisticas.promedio_puntuacion) || 0;
+  const totalCanciones = estadisticas.total_canciones || 0;
+  const genero = estadisticas.genero_predominante || '-';
+  const artista = estadisticas.artista_favorito || '-';
+
+  const estrellas = Math.round(promedio);
+  const tiempoLargo = formatearTiempo(minutos);
+  const totalEstados = ESTADOS.reduce((acc, e) => acc + (Number(estadosEscucha[e.clave]) || 0), 0);
+
   return (
-    <div className="home-container">
+    <div className="home-container estadisticas-page">
       <Header />
 
       <main className="main-content">
-        <h2 className="page-main-title">Mis estadisticas</h2>
-        
+        <h2 className="page-main-title">Mis estadísticas</h2>
+
         <div className="estadisticas-card">
-          
-          <div className="estadisticas-content">
-            {/* Columna Izquierda: Estadísticas Generales */}
-            <div className="estadisticas-column">
-              <h3 className="column-subtitle">Estadisticas generales</h3>
-              <ul className="stats-list">
-                {/* Fallbacks a 0 aseguran que los números se muestren aunque el backend mande null */}
-                <li>Minutos escuchados: {data.estadisticas.tiempo_total_minutos || 0}</li>
-                <li>Reseña promedio: {data.estadisticas.promedio_puntuacion || 0}</li>
-                <li>Canciones guardadas: {data.estadisticas.total_canciones || 0}
-                  <ul className="sub-stats-list">
-                    <li>Quiero escuchar: {data.estadisticas.estados_escucha.quiero_escuchar || 0}</li>
-                    <li>Escuchando: {data.estadisticas.estados_escucha.escuchando || 0}</li>
-                    <li>Escuchado: {data.estadisticas.estados_escucha.escuchado || 0}</li>
-                  </ul>
+          {/* Indicadores principales */}
+          <section className="est-tiles" aria-label="Estadísticas generales">
+            <article className="est-tile">
+              <span className="est-tile-label">Minutos escuchados</span>
+              <span className="est-tile-value">{minutos}</span>
+              <span className="est-tile-sub">{tiempoLargo || 'minutos en total'}</span>
+            </article>
+
+            <article className="est-tile">
+              <span className="est-tile-label">Reseña promedio</span>
+              <span className="est-tile-value">{promedio || 0}</span>
+              <span className="est-stars" role="img" aria-label={`${promedio} de 5`}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <span key={n} className={n <= estrellas ? 'est-star on' : 'est-star'}>★</span>
+                ))}
+              </span>
+            </article>
+
+            <article className="est-tile">
+              <span className="est-tile-label">Canciones guardadas</span>
+              <span className="est-tile-value">{totalCanciones}</span>
+              <span className="est-tile-sub">en tu biblioteca</span>
+            </article>
+          </section>
+
+          <div className="est-columns">
+            {/* Estado de escucha */}
+            <section className="est-panel">
+              <h3 className="est-panel-title">Estado de tu biblioteca</h3>
+              <ul className="est-bars">
+                {ESTADOS.map(({ clave, label }) => {
+                  const n = Number(estadosEscucha[clave]) || 0;
+                  const pct = totalEstados ? (n / totalEstados) * 100 : 0;
+                  return (
+                    <li key={clave} className="est-bar-row">
+                      <div className="est-bar-head">
+                        <span>{label}</span>
+                        <strong>{n}</strong>
+                      </div>
+                      <div className="est-bar-track" aria-hidden="true">
+                        <div className="est-bar-fill" style={{ width: `${pct}%` }} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+
+            {/* Tu música */}
+            <section className="est-panel">
+              <h3 className="est-panel-title">Tu música</h3>
+              <ul className="est-fav-list">
+                <li className="est-fav">
+                  <span className="est-disc" aria-hidden="true" />
+                  <div className="est-fav-text">
+                    <span className="est-fav-label">Género más escuchado</span>
+                    <span className="est-fav-value" title={String(genero)}>{genero}</span>
+                  </div>
+                </li>
+                <li className="est-fav">
+                  <span className="est-avatar" aria-hidden="true">
+                    {artista !== '-' ? String(artista).charAt(0).toUpperCase() : '·'}
+                  </span>
+                  <div className="est-fav-text">
+                    <span className="est-fav-label">Artista más escuchado</span>
+                    <span className="est-fav-value" title={String(artista)}>{artista}</span>
+                  </div>
                 </li>
               </ul>
-
-              <div className="favoritas-section">
-                <p>Favoritas:</p>
-                <div className="favoritas-box">
-                  {/* Se asegura de que exista el array antes de iterarlo */}
-                  {data.favoritas && data.favoritas.length > 0 ? (
-                    data.favoritas.map((fav, index) => (
-                      <div key={fav.id || index} className="favorito-item">
-                        <div className="vinilo-icon">
-                          <div className="vinilo-center"></div>
-                        </div>
-                        <div className="favorito-info">
-                          <span>{fav.titulo}</span>
-                          <span className="star-icon">★</span>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="no-data-text" style={{margin: 0}}>No tienes canciones favoritas aún.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Columna Derecha: Tu Música */}
-            <div className="estadisticas-column">
-              <h3 className="column-subtitle">Tu música</h3>
-              <ul className="stats-list">
-                {/* Fallbacks a guión o texto para strings vacíos */}
-                <li>Género mas escuchado: {data.estadisticas.genero_predominante || '-'}</li>
-                <li>Artista mas escuchado: {data.estadisticas.artista_favorito || '-'}</li>
-              </ul>
-            </div>
+            </section>
           </div>
         </div>
       </main>

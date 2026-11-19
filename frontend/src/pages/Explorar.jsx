@@ -19,6 +19,13 @@ const ORDENES = [
 ];
 
 const SUGERENCIAS = ['rock', 'pop', 'indie', 'jazz', 'cumbia', 'electronica', 'soul', 'folk'];
+const GENEROS_MAESTROS = [
+  'Rock', 'Pop', 'Indie', 'Jazz', 'Blues', 'Cumbia', 'Electrónica',
+  'Soul', 'Folk', 'Clásica', 'Hip-hop', 'Rap', 'Reggaetón', 'R&B',
+  'Metal', 'Punk', 'Country', 'Reggae', 'Salsa', 'Tango', 'Funk',
+  'Disco', 'House', 'Techno', 'Trap', 'Ambient', 'Gospel', 'Bossa Nova',
+  'Ska', 'Heavy Metal', 'Alternativo'
+];
 const POR_PAGINA = 18;
 const SKELETONS = 12;
 
@@ -104,6 +111,7 @@ const Explorar = () => {
   const [error, setError] = useState(null);
   const [reintentos, setReintentos] = useState(0);
   const [generosFavoritos, setGenerosFavoritos] = useState([]);
+  const [generosCatalogo, setGenerosCatalogo] = useState([]);
   const [preferenciasCargadas, setPreferenciasCargadas] = useState(false);
 
   const [terminoDefault] = useState(terminoRandom);
@@ -125,7 +133,6 @@ const Explorar = () => {
     setLento(false);
     setError(null);
     setResultados([]);
-    setGenero('');
     setVisibles(POR_PAGINA);
 
     const cargar = async () => {
@@ -133,6 +140,15 @@ const Explorar = () => {
         if (termino) {
           const res = await API.get('/musica/search', {
             params: { q: termino, type: tipo },
+            signal: controller.signal,
+          });
+          setResultados(normalizarLista(res.data));
+          return;
+        }
+
+        if (genero) {
+          const res = await API.get('/musica/search', {
+            params: { q: genero, type: tipo },
             signal: controller.signal,
           });
           setResultados(normalizarLista(res.data));
@@ -197,7 +213,7 @@ const Explorar = () => {
       controller.abort();
       clearTimeout(avisoLento);
     };
-  }, [tipo, termino, terminoDefault, reintentos, preferenciasCargadas, generosFavoritos]);
+  }, [tipo, termino, genero, terminoDefault, reintentos, preferenciasCargadas, generosFavoritos]);
 
   useEffect(() => {
     if (!localStorage.getItem('token')) {
@@ -222,15 +238,33 @@ const Explorar = () => {
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+
+    API.get('/musica/generos', { signal: controller.signal })
+      .then((res) => {
+        setGenerosCatalogo(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch((err) => {
+        if (err.code !== 'ERR_CANCELED') setGenerosCatalogo([]);
+      });
+
+    return () => controller.abort();
+  }, []);
+
   const generos = useMemo(() => {
-    const set = new Set(resultados.map((r) => r.genero).filter(Boolean));
+    const set = new Set([
+      ...GENEROS_MAESTROS,
+      ...generosCatalogo,
+      ...resultados.map((r) => r.genero).filter(Boolean)
+    ].map((valor) => String(valor).trim()).filter(Boolean));
+
     return [...set].sort((a, b) => comparar(a, b));
-  }, [resultados]);
+  }, [generosCatalogo, resultados]);
 
   const filtrados = useMemo(() => {
-    const porGenero = genero ? resultados.filter((r) => r.genero === genero) : resultados;
-    return ordenar(porGenero, orden);
-  }, [resultados, genero, orden]);
+    return ordenar(resultados, orden);
+  }, [resultados, orden]);
 
   const lista = filtrados.slice(0, visibles);
   const tipoActual = TIPOS.find((t) => t.valor === tipo);
