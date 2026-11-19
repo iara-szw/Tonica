@@ -269,7 +269,9 @@ const Explorar = () => {
   const lista = filtrados.slice(0, visibles);
   const tipoActual = TIPOS.find((t) => t.valor === tipo);
 const tituloSeccion = tipoActual ? tipoActual.titulo : 'Explorar';
-  const irAlDetalle = (item) => navigate(`/detalle/${tipo}/${item.id_externo}`);
+  const irAlDetalle = (item) => navigate(`/detalle/${tipo}/${item.id_externo}`, {
+    state: { itemPortada: item }
+  });
 
   const subtitulo = (item) => {
     const artista = item.nombre_artista || (tipo === 'album' ? 'Varios artistas' : 'Artista desconocido');
