@@ -33,22 +33,7 @@ const estadisticasRepository = {
            WHERE ib3.id_usuario = $1 AND c3.nombre_artista IS NOT NULL
            GROUP BY c3.nombre_artista ORDER BY COUNT(*) DESC LIMIT 1),
           'Ninguno'
-        ) AS artista_favorito,
-        COALESCE(
-          (SELECT JSON_AGG(
-             JSON_BUILD_OBJECT(
-               'id', c4.id,
-               'nombre', c4.nombre,
-               'nombre_artista', c4.nombre_artista,
-               'genero', c4.genero
-             )
-             ORDER BY ib4.puntuacion DESC NULLS LAST, ib4.fecha_agregado DESC
-           )
-           FROM items_biblioteca ib4
-           JOIN canciones c4 ON ib4.id_cancion = c4.id
-           WHERE ib4.id_usuario = $1),
-          '[]'::json
-        ) AS canciones_favoritas
+        ) AS artista_favorito
       FROM items_biblioteca ib
       JOIN canciones c ON ib.id_cancion = c.id
       WHERE ib.id_usuario = $1;
