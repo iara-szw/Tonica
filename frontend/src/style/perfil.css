@@ -88,6 +88,7 @@
   font-weight: 600;
   color: #fff;
   position: absolute;
+  margin-left: -0.7%;
 }
 
 .perfil-avatar img {
@@ -98,15 +99,17 @@
 
 .perfil-nombre {
   margin: 0;
+  margin-top: 14%;
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 600;
   line-height: 1.2;
   overflow-wrap: anywhere;
+  color: #351b0b;
 }
 
 .perfil-correo {
   margin: 0;
-  margin-top: 5%;
+  margin-top: 1%;
   font-size: 0.95rem;
   color: var(--pf-muted);
   overflow-wrap: anywhere;
