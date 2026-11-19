@@ -52,6 +52,9 @@ useEffect(() => {
   // Prevenir crasheos si data no está definido
   if (!data) return null;
 
+  const estadisticas = data.estadisticas || {};
+  const estadosEscucha = estadisticas.estados_escucha || {};
+
   return (
     <div className="home-container">
       <Header />
@@ -67,38 +70,16 @@ useEffect(() => {
               <h3 className="column-subtitle">Estadisticas generales</h3>
               <ul className="stats-list">
                 {/* Fallbacks a 0 aseguran que los números se muestren aunque el backend mande null */}
-                <li>Minutos escuchados: {data.estadisticas.tiempo_total_minutos || 0}</li>
-                <li>Reseña promedio: {data.estadisticas.promedio_puntuacion || 0}</li>
-                <li>Canciones guardadas: {data.estadisticas.total_canciones || 0}
+                <li>Minutos escuchados: {estadisticas.tiempo_total_minutos || 0}</li>
+                <li>Reseña promedio: {estadisticas.promedio_puntuacion || 0}</li>
+                <li>Canciones guardadas: {estadisticas.total_canciones || 0}
                   <ul className="sub-stats-list">
-                    <li>Quiero escuchar: {data.estadisticas.estados_escucha.quiero_escuchar || 0}</li>
-                    <li>Escuchando: {data.estadisticas.estados_escucha.escuchando || 0}</li>
-                    <li>Escuchado: {data.estadisticas.estados_escucha.escuchado || 0}</li>
+                    <li>Quiero escuchar: {estadosEscucha.quiero_escuchar || 0}</li>
+                    <li>Escuchando: {estadosEscucha.escuchando || 0}</li>
+                    <li>Escuchado: {estadosEscucha.escuchado || 0}</li>
                   </ul>
                 </li>
               </ul>
-
-              <div className="favoritas-section">
-                <p>Favoritas:</p>
-                <div className="favoritas-box">
-                  {/* Se asegura de que exista el array antes de iterarlo */}
-                  {data.favoritas && data.favoritas.length > 0 ? (
-                    data.favoritas.map((fav, index) => (
-                      <div key={fav.id || index} className="favorito-item">
-                        <div className="vinilo-icon">
-                          <div className="vinilo-center"></div>
-                        </div>
-                        <div className="favorito-info">
-                          <span>{fav.titulo}</span>
-                          <span className="star-icon">★</span>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="no-data-text" style={{margin: 0}}>No tienes canciones favoritas aún.</p>
-                  )}
-                </div>
-              </div>
             </div>
 
             {/* Columna Derecha: Tu Música */}
@@ -106,8 +87,8 @@ useEffect(() => {
               <h3 className="column-subtitle">Tu música</h3>
               <ul className="stats-list">
                 {/* Fallbacks a guión o texto para strings vacíos */}
-                <li>Género mas escuchado: {data.estadisticas.genero_predominante || '-'}</li>
-                <li>Artista mas escuchado: {data.estadisticas.artista_favorito || '-'}</li>
+                <li>Género mas escuchado: {estadisticas.genero_predominante || '-'}</li>
+                <li>Artista mas escuchado: {estadisticas.artista_favorito || '-'}</li>
               </ul>
             </div>
           </div>
