@@ -6,7 +6,7 @@ import '../style/perfil.css';
 
 const MAX_BIO = 300;
 const MAX_GENEROS = 8;
-const LIMITE_INICIAL = 20;
+const LIMITE_INICIAL = 5;
 const LIMITE_MAXIMO = 100;
 const SUGERENCIAS = ['rock', 'pop', 'indie', 'jazz', 'cumbia', 'electrónica', 'hip hop', 'folk', 'soul', 'metal'];
 

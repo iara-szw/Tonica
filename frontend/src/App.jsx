@@ -1,13 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-// import RutaProtegida from './componentes/rutaProtegida';
+import RutaProtegida from './componentes/rutaProtegida';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Explorar from './pages/Explorar';
 import Detalle from './pages/Detalle';
-// import Biblioteca from './pages/Biblioteca';
-// import Playlists from './pages/Playlists';
- import Perfil from './pages/Perfil';
-// import Estadisticas from './pages/Estadisticas';
+import Playlist from './pages/Playlist';
+import Perfil from './pages/Perfil';
+import Estadisticas from './pages/Estadisticas';
 
 function App() {
   return (
@@ -18,18 +17,16 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/explorar" element={<Explorar />} />
         <Route path="/detalle/:type/:id" element={<Detalle />} /> 
-          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/perfil" element={<Perfil />} /> 
 
         {/* Rutas protegidas (requieren sesión activa) */}
-        {/* <Route element={<RutaProtegida />}>
-          <Route path="/biblioteca" element={<Biblioteca />} />
-          <Route path="/playlists" element={<Playlists />} />
+        <Route element={<RutaProtegida />}>
+          {/* <Route path="/biblioteca" element={<Biblioteca />} /> */}
+          <Route path="/Playlist" element={<Playlist />} />
           <Route path="/estadisticas" element={<Estadisticas />} />
-        </Route> */}
-
-        {/* Cualquier ruta desconocida */}
-        {/* <Route path="*" element={<Navigate to="/" replace />} />
-         */} 
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+         
       </Routes>
     </BrowserRouter>
   );

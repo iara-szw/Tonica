@@ -103,6 +103,8 @@ const Explorar = () => {
   const [lento, setLento] = useState(false);
   const [error, setError] = useState(null);
   const [reintentos, setReintentos] = useState(0);
+  const [generosFavoritos, setGenerosFavoritos] = useState([]);
+  const [preferenciasCargadas, setPreferenciasCargadas] = useState(false);
 
   const [terminoDefault] = useState(terminoRandom);
 
@@ -114,6 +116,8 @@ const Explorar = () => {
 
   // Carga de resultados blindada
   useEffect(() => {
+    if (!preferenciasCargadas) return undefined;
+
     const controller = new AbortController();
     const avisoLento = setTimeout(() => setLento(true), 5000);
 
@@ -124,14 +128,53 @@ const Explorar = () => {
     setGenero('');
     setVisibles(POR_PAGINA);
 
-    API.get('/musica/search', {
-      params: { q: termino || terminoDefault, type: tipo },
-      signal: controller.signal,
-    })
-      .then((res) => {
-        setResultados(normalizarLista(res.data));
-      })
-      .catch((err) => {
+    const cargar = async () => {
+      try {
+        if (termino) {
+          const res = await API.get('/musica/search', {
+            params: { q: termino, type: tipo },
+            signal: controller.signal,
+          });
+          setResultados(normalizarLista(res.data));
+          return;
+        }
+
+        const consultas = generosFavoritos.length > 0
+          ? generosFavoritos
+          : [terminoDefault];
+
+        const respuestas = await Promise.allSettled(
+          consultas.map((generoFavorito) => API.get('/musica/search', {
+            params: { q: generoFavorito, type: tipo },
+            signal: controller.signal,
+          }))
+        );
+
+        const combinados = [];
+        const ids = new Set();
+        respuestas.forEach((respuesta) => {
+          if (respuesta.status !== 'fulfilled') return;
+          normalizarLista(respuesta.value.data).forEach((item) => {
+            const clave = item.id_externo || `${item.titulo}-${item.nombre_artista}`;
+            if (!ids.has(clave)) {
+              ids.add(clave);
+              combinados.push(item);
+            }
+          });
+        });
+
+        if (combinados.length > 0) {
+          setResultados(combinados);
+        } else {
+          const fallos = respuestas.filter((respuesta) => respuesta.status === 'rejected');
+          const ultimoError = fallos[0]?.reason;
+          setError(
+            ultimoError?.response?.status === 503 || ultimoError?.response?.status === 429
+              ? 'El servicio de música está temporalmente saturado. Espera unos segundos y reintenta.'
+              : 'No pudimos cargar los resultados. Probá de nuevo.'
+          );
+        }
+      } catch (err) {
         if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return;
         console.error('Error al buscar música:', err);
         setError(
@@ -139,20 +182,45 @@ const Explorar = () => {
             ? 'El servicio de música está temporalmente saturado. Espera unos segundos y reintenta.'
             : 'No pudimos cargar los resultados. Probá de nuevo.'
         );
-      })
-      .finally(() => {
+      } finally {
         clearTimeout(avisoLento);
         if (!controller.signal.aborted) {
           setCargando(false);
           setLento(false);
         }
-      });
+      }
+    };
+
+    cargar();
 
     return () => {
       controller.abort();
       clearTimeout(avisoLento);
     };
-  }, [tipo, termino, terminoDefault, reintentos]);
+  }, [tipo, termino, terminoDefault, reintentos, preferenciasCargadas, generosFavoritos]);
+
+  useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      setPreferenciasCargadas(true);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+
+    API.get('/auth/perfil', { signal: controller.signal })
+      .then((res) => {
+        const perfil = res.data?.perfil ?? res.data?.usuario ?? res.data?.user ?? res.data;
+        setGenerosFavoritos(leerGenerosFavoritos(perfil?.preferencias));
+      })
+      .catch((err) => {
+        if (err.code !== 'ERR_CANCELED') setGenerosFavoritos([]);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setPreferenciasCargadas(true);
+      });
+
+    return () => controller.abort();
+  }, []);
 
   const generos = useMemo(() => {
     const set = new Set(resultados.map((r) => r.genero).filter(Boolean));
@@ -166,8 +234,7 @@ const Explorar = () => {
 
   const lista = filtrados.slice(0, visibles);
   const tipoActual = TIPOS.find((t) => t.valor === tipo);
-  const tituloSeccion = termino ? `Resultados para "${termino}"` : tipoActual.titulo;
-
+const tituloSeccion = tipoActual ? tipoActual.titulo : 'Explorar';
   const irAlDetalle = (item) => navigate(`/detalle/${tipo}/${item.id_externo}`);
 
   const subtitulo = (item) => {
