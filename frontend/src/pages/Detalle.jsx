@@ -38,13 +38,8 @@ const Imagen = ({ src, alt = '', className = 'detalle-img' }) => {
 
 // Canción = círculo (disco) · Álbum = cuadrado · Artista = avatar con inicial
 const Visual = ({ tipo, detalle }) => {
-  if (tipo === 'artist') {
-    return (
-      <div className="detalle-avatar" aria-hidden="true">
-        {detalle.titulo?.trim()?.charAt(0)?.toUpperCase() || '♪'}
-      </div>
-    );
-  }
+  const mostrarPortadaAlbum = tipo === 'track' && detalle.id_album_externo && detalle.portada_url;
+
   return (
     <div className={tipo === 'track' ? 'detalle-disc' : 'detalle-cover'}>
       <Imagen src={detalle.portada_url} alt={`Portada de ${detalle.titulo}`} />
@@ -167,7 +162,7 @@ const Detalle = () => {
   const { detalle, albumInfo, cargando, error } = data;
   const idExterno = detalle?.id_externo ?? id;
   const detalleVisual = tipo === 'track'
-    ? { ...detalle, portada_url: albumInfo?.portada_url || detalle?.portada_url }
+    ? { ...detalle, portada_url: detalle?.portada_url }
     : detalle;
 
   // --- Carga del detalle ---
@@ -187,7 +182,15 @@ const Detalle = () => {
 
     API.get(`/musica/detalle/${tipo}/${id}`, { signal: controller.signal })
       .then((res) => {
-        const det = desenvolver(res.data);
+        const detApi = desenvolver(res.data);
+        const itemPortada = location.state?.itemPortada;
+        const det = tipo === 'track' && itemPortada
+          ? {
+              ...detApi,
+              nombre_album: detApi.nombre_album || itemPortada.nombre_album,
+              portada_url: itemPortada.portada_url || detApi.portada_url
+            }
+          : detApi;
         setData((prev) => ({ ...prev, detalle: det, cargando: false }));
 
         // Álbum de la canción: si falla, el detalle igual se muestra
@@ -531,13 +534,14 @@ const Detalle = () => {
 
                   {tipo === 'track' && (
                     <Dato etiqueta="Álbum">
+                      {console.log(detalle)}
                       {detalle.id_album_externo ? (
                         <button
                           type="button"
                           className="detalle-link"
                           onClick={() => navigate(`/detalle/album/${detalle.id_album_externo}`)}
                         >
-                          {albumInfo?.titulo ?? detalle.nombre_album ?? 'Ver álbum'}
+                          {detalle.nombre_album ?? 'Ver álbum'}
                         </button>
                       ) : (
                         '—'

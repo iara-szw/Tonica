@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../api/apiClient';
 import Header from '../componentes/Header';
 import '../style/home.css';
-import '../style/estadisticas.css';
+import '../style/Estadisticas.css';
 
 const ESTADOS = [
   { clave: 'quiero_escuchar', label: 'Quiero escuchar' },
