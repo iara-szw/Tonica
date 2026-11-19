@@ -24,16 +24,31 @@ const estadisticasRepository = {
           (SELECT c2.genero FROM items_biblioteca ib2
            JOIN canciones c2 ON ib2.id_cancion = c2.id
            WHERE ib2.id_usuario = $1 AND c2.genero IS NOT NULL AND c2.genero != 'General'
-           GROUP BY c2.genero ORDER BY COUNT(*) DESC LIMIT 1), 
+           GROUP BY c2.genero ORDER BY COUNT(*) DESC LIMIT 1),
           'Ninguno'
         ) AS genero_predominante,
         COALESCE(
           (SELECT c3.nombre_artista FROM items_biblioteca ib3
            JOIN canciones c3 ON ib3.id_cancion = c3.id
            WHERE ib3.id_usuario = $1 AND c3.nombre_artista IS NOT NULL
-           GROUP BY c3.nombre_artista ORDER BY COUNT(*) DESC LIMIT 1), 
+           GROUP BY c3.nombre_artista ORDER BY COUNT(*) DESC LIMIT 1),
           'Ninguno'
-        ) AS artista_favorito
+        ) AS artista_favorito,
+        COALESCE(
+          (SELECT JSON_AGG(
+             JSON_BUILD_OBJECT(
+               'id', c4.id,
+               'nombre', c4.nombre,
+               'nombre_artista', c4.nombre_artista,
+               'genero', c4.genero
+             )
+             ORDER BY ib4.puntuacion DESC NULLS LAST, ib4.fecha_agregado DESC
+           )
+           FROM items_biblioteca ib4
+           JOIN canciones c4 ON ib4.id_cancion = c4.id
+           WHERE ib4.id_usuario = $1),
+          '[]'::json
+        ) AS canciones_favoritas
       FROM items_biblioteca ib
       JOIN canciones c ON ib.id_cancion = c.id
       WHERE ib.id_usuario = $1;
