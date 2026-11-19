@@ -30,7 +30,7 @@ const SkeletonMixes = () => (
   </ul>
 );
 
-const MisMixes = () => {
+const Playlist = () => {
   const navigate = useNavigate();
   const [mixes, setMixes] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -98,18 +98,22 @@ const MisMixes = () => {
   };
 
   const eliminarMix = async (mix) => {
+    const mixId = mix.id_playlist || mix.id || mix._id;
     if (!window.confirm(`¿Eliminar "${mix.nombre}"? Las canciones siguen en tu biblioteca.`)) return;
     const anterior = mixes;
-    setMixes((lista) => lista.filter((m) => m.id !== mix.id));
+    setMixes((lista) => lista.filter((m) => (m.id_playlist || m.id || m._id) !== mixId));
     try {
-      await API.delete(`/playlist/${mix.id}`);
+      await API.delete(`/playlist/${mixId}`);
     } catch (err) {
       setMixes(anterior);
       setError(mensajeError(err, 'No pudimos eliminar el mix. Probá de nuevo.'));
     }
   };
 
-  const irAlMix = (id) => navigate(`/mixes/${id}`);
+  const irAlMix = (mix) => {
+    const mixId = mix.id_playlist || mix.id || mix._id;
+    if (mixId) navigate(`/playlist/${mixId}`);
+  };
 
   return (
     <div className="mixes-container">
@@ -186,14 +190,15 @@ const MisMixes = () => {
             </div>
           ) : (
             <ul className="mixes-grid">
-              {mixes.map((mix) => {
+              {mixes.map((mix, index) => {
+                const mixId = mix.id_playlist || mix.id || mix._id;
                 const cantidad = cantidadDe(mix);
                 return (
-                  <li key={mix.id} className="mix-card">
+                  <li key={mixId ?? index} className="mix-card">
                     <button
                       type="button"
                       className="mix-open"
-                      onClick={() => irAlMix(mix.id)}
+                      onClick={() => irAlMix(mix)}
                       aria-label={`Abrir mix ${mix.nombre}`}
                     >
                       <span className="mix-disc" aria-hidden="true" />
@@ -226,4 +231,4 @@ const MisMixes = () => {
   );
 };
 
-export default MisMixes;
+export default Playlist;

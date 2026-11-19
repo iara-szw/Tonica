@@ -366,7 +366,7 @@ const Detalle = () => {
     setUiCampos({ menuAbierto: abrir });
     if (abrir && playlists === null) {
       try {
-        const res = await API.get('/playlists');
+        const res = await API.get('/playlist');
         setPlaylists(normalizar(res.data));
       } catch {
         setUiCampos({ menuAbierto: false });
@@ -378,7 +378,7 @@ const Detalle = () => {
   const agregarAPlaylist = async (playlistId, nombre) => {
     setUiCampos({ menuAbierto: false });
     try {
-      await API.post(`/playlists/${playlistId}/items`, { id_externo: idExterno, tipo });
+      await API.post(`/playlist/${playlistId}/items`, { id_externo: idExterno, tipo });
       avisar(`Agregado a “${nombre}”.`);
     } catch (err) {
       avisar(err.response?.data?.message || 'No pudimos agregarlo a la playlist.', true);
