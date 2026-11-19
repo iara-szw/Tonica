@@ -67,13 +67,13 @@ useEffect(() => {
               <h3 className="column-subtitle">Estadisticas generales</h3>
               <ul className="stats-list">
                 {/* Fallbacks a 0 aseguran que los números se muestren aunque el backend mande null */}
-                <li>Minutos escuchados: {data.minutosEscuchados || 0}</li>
-                <li>Reseña promedio: {data.resenaPromedio || 0}</li>
-                <li>Canciones guardadas: {data.cancionesGuardadas || 0}
+                <li>Minutos escuchados: {data.estadisticas.tiempo_total_minutos || 0}</li>
+                <li>Reseña promedio: {data.estadisticas.promedio_puntuacion || 0}</li>
+                <li>Canciones guardadas: {data.estadisticas.total_canciones || 0}
                   <ul className="sub-stats-list">
-                    <li>Quiero escuchar: {data.estados?.quieroEscuchar || 0}</li>
-                    <li>Escuchando: {data.estados?.escuchando || 0}</li>
-                    <li>Escuchado: {data.estados?.escuchado || 0}</li>
+                    <li>Quiero escuchar: {data.estadisticas.estados_escucha.quiero_escuchar || 0}</li>
+                    <li>Escuchando: {data.estadisticas.estados_escucha.escuchando || 0}</li>
+                    <li>Escuchado: {data.estadisticas.estados_escucha.escuchado || 0}</li>
                   </ul>
                 </li>
               </ul>
@@ -106,10 +106,8 @@ useEffect(() => {
               <h3 className="column-subtitle">Tu música</h3>
               <ul className="stats-list">
                 {/* Fallbacks a guión o texto para strings vacíos */}
-                <li>Género mas escuchado: {data.musica?.genero || '-'}</li>
-                <li>Artista mas escuchado: {data.musica?.artista || '-'}</li>
-                <li>Album mas escuchado: {data.musica?.album || '-'}</li>
-                <li>Cancion mas escuchada:<br/>{data.musica?.cancion || '-'}</li>
+                <li>Género mas escuchado: {data.estadisticas.genero_predominante || '-'}</li>
+                <li>Artista mas escuchado: {data.estadisticas.artista_favorito || '-'}</li>
               </ul>
             </div>
           </div>
