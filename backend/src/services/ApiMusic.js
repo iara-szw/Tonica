@@ -96,7 +96,10 @@ const primerReleaseId = data.releases && data.releases.length > 0 ? data.release
         };
       }
 
-      const idAlbum = data.releases?.[0]?.['release-group']?.id || null;
+      const lanzamiento = data.releases?.[0] || null;
+      const idAlbum = lanzamiento?.['release-group']?.id || null;
+      const nombreAlbum = lanzamiento?.['release-group']?.title || lanzamiento?.title || null;
+      const portadaAlbum = idAlbum ? `${COVER_ART_URL}/${idAlbum}/front-500` : null;
       return {
         id_externo: data.id,
         titulo: data.title,
@@ -105,7 +108,8 @@ const primerReleaseId = data.releases && data.releases.length > 0 ? data.release
         genero: obtenerGenero(data.tags),
         id_artista_externo: data['artist-credit']?.[0]?.artist?.id || null,
         id_album_externo: idAlbum,
-        portada_url: idAlbum ? `${COVER_ART_URL}/${idAlbum}/front-250` : null,
+        nombre_album: nombreAlbum,
+        portada_url: portadaAlbum,
         duracion_seg: data.length ? Math.round(data.length / 1000) : null
       };
 
@@ -171,7 +175,9 @@ const primerReleaseId = data.releases && data.releases.length > 0 ? data.release
 
       if (!data.recordings) return [];
       return data.recordings.map(track => {
-        const idAlbum = track.releases?.[0]?.['release-group']?.id || null;
+        const lanzamiento = track.releases?.[0] || null;
+        const idAlbum = lanzamiento?.['release-group']?.id || null;
+        const nombreAlbum = lanzamiento?.['release-group']?.title || lanzamiento?.title || null;
         return {
           id_externo: track.id,
           titulo: track.title,
@@ -180,6 +186,7 @@ const primerReleaseId = data.releases && data.releases.length > 0 ? data.release
           genero: obtenerGenero(track.tags),
           id_artista_externo: track['artist-credit']?.[0]?.artist?.id || null,
           id_album_externo: idAlbum,
+          nombre_album: nombreAlbum,
           portada_url: idAlbum ? `${COVER_ART_URL}/${idAlbum}/front-250` : null,
           duracion_seg: track.length ? Math.round(track.length / 1000) : null
         };

@@ -1,5 +1,6 @@
 import express from 'express';
 import NodeCache from 'node-cache';
+import pool from '../config/db.js';
 import { musicService } from '../services/ApiMusic.js';
 
 const router = express.Router();
@@ -64,6 +65,24 @@ router.get('/detalle/:type/:id', async (req, res) => {
   } catch (err) {
     const isRateLimit = err.message.includes('saturado') || err.response?.status === 503 || err.response?.status === 429;
     res.status(isRateLimit ? 503 : 500).json({ error: err.message });
+  }
+});
+
+router.get('/generos', async (req, res) => {
+  try {
+    const resultado = await pool.query(`
+      SELECT DISTINCT genero
+      FROM canciones
+      WHERE genero IS NOT NULL
+        AND BTRIM(genero) <> ''
+        AND genero <> 'General'
+      ORDER BY genero ASC
+    `);
+
+    res.status(200).json(resultado.rows.map((fila) => fila.genero));
+  } catch (err) {
+    console.error('Error al obtener géneros:', err);
+    res.status(500).json({ error: 'No se pudieron cargar los géneros' });
   }
 });
 
