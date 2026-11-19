@@ -24,14 +24,14 @@ const estadisticasRepository = {
           (SELECT c2.genero FROM items_biblioteca ib2
            JOIN canciones c2 ON ib2.id_cancion = c2.id
            WHERE ib2.id_usuario = $1 AND c2.genero IS NOT NULL AND c2.genero != 'General'
-           GROUP BY c2.genero ORDER BY COUNT(*) DESC LIMIT 1),
+           GROUP BY c2.genero ORDER BY COUNT(*) DESC LIMIT 1), 
           'Ninguno'
         ) AS genero_predominante,
         COALESCE(
           (SELECT c3.nombre_artista FROM items_biblioteca ib3
            JOIN canciones c3 ON ib3.id_cancion = c3.id
            WHERE ib3.id_usuario = $1 AND c3.nombre_artista IS NOT NULL
-           GROUP BY c3.nombre_artista ORDER BY COUNT(*) DESC LIMIT 1),
+           GROUP BY c3.nombre_artista ORDER BY COUNT(*) DESC LIMIT 1), 
           'Ninguno'
         ) AS artista_favorito
       FROM items_biblioteca ib

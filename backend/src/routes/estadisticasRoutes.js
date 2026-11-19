@@ -15,7 +15,8 @@ router.get('/', authJWT, async (req, res) => {
       estadisticas
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error al obtener estadísticas:', err);
+    res.status(500).json({ error: 'No se pudieron calcular las estadísticas' });
   }
 });
 
