@@ -1,0 +1,394 @@
+/* ===== Biblioteca — Tónica (alineada con Explorar) ===== */
+.bib-container {
+  --bb-header: #66341a;
+  --bb-bg: #efe3d3;
+  --bb-card: #faf7f2;
+  --bb-chip: #f3e4cf;
+  --bb-track: #e9dcc9;
+  --bb-tan: #b8966b;
+  --bb-clay: #9a6a4c;
+  --bb-ink: #4a2410;
+  --bb-muted: #9b7b62;
+  --bb-danger: #a63a2b;
+  --bb-shadow: 0 4px 18px rgba(102, 52, 26, 0.09);
+
+  min-height: 100vh;
+  background: var(--bb-bg);
+  color: var(--bb-ink);
+}
+
+/* Heredar la tipografía en todos los controles */
+.bib-container button,
+.bib-container input,
+.bib-container select { font-family: inherit; }
+
+.bib-main {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 36px 24px 72px;
+}
+
+/* El selector doble evita que un h2 global (color claro) lo pise */
+.bib-container .bib-page-title {
+  margin: 4px 0 22px;
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 500;
+  color: var(--bb-ink);
+}
+
+/* ---------- Controles ---------- */
+.bib-controles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.bib-pills {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bb-track);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(154, 106, 76, 0.08);
+}
+
+.bib-pill {
+  padding: 9px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bb-muted);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.bib-pill:hover { color: var(--bb-ink); }
+.bib-pill[aria-pressed='true'] { background: var(--bb-tan); color: #fff; }
+
+.bib-pill-count {
+  margin-left: 4px;
+  font-size: 0.76rem;
+  opacity: 0.75;
+}
+
+.bib-fila {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.bib-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 320px;
+  max-width: 500px;
+  padding: 0 22px;
+  background: var(--bb-card);
+  color: var(--bb-muted);
+  border-radius: 999px;
+  box-shadow: var(--bb-shadow);
+  transition: box-shadow 0.15s ease;
+}
+
+.bib-search:focus-within { box-shadow: 0 0 0 3px rgba(184, 150, 107, 0.35); }
+
+.bib-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 15px 0;
+  border: 0;
+  background: transparent;
+  color: var(--bb-ink);
+  font-size: 0.95rem;
+}
+
+.bib-search input::placeholder { color: var(--bb-muted); }
+.bib-search input:focus { outline: none; }
+
+.bib-pills-tipo { background: var(--bb-card); box-shadow: var(--bb-shadow); }
+
+/* Select propio, con la misma flecha que Explorar */
+.bib-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 14px 46px 14px 22px;
+  border: 0;
+  border-radius: 999px;
+  background-color: var(--bb-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234a2410' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  color: var(--bb-ink);
+  font-size: 0.95rem;
+  box-shadow: var(--bb-shadow);
+  cursor: pointer;
+}
+
+.bib-pill:focus-visible,
+.bib-select:focus-visible,
+.bib-btn:focus-visible,
+.bib-open:focus-visible,
+.bib-fav:focus-visible,
+.bib-quitar:focus-visible {
+  outline: 2px solid var(--bb-tan);
+  outline-offset: 3px;
+}
+
+.bib-aviso {
+  margin: 0 auto 16px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--bb-danger);
+}
+
+/* ---------- Encabezado de sección (como "Canciones para explorar") ---------- */
+.bib-seccion-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 8px 12px;
+}
+
+.bib-seccion-titulo { margin: 0; font-size: 1.2rem; font-weight: 500; color: var(--bb-ink); }
+.bib-resultados { margin: 0; font-size: 0.88rem; color: var(--bb-muted); }
+
+/* ---------- Panel ---------- */
+.bib-panel {
+  min-height: 280px;
+  padding: 34px 28px 28px;
+  background: var(--bb-card);
+  border-radius: 28px;
+  box-shadow: var(--bb-shadow);
+}
+
+.bib-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 34px 26px;
+}
+
+/* ---------- Tarjeta: sin caja, igual que en Explorar ---------- */
+.bib-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.bib-cover-wrap { position: relative; width: 100%; }
+
+.bib-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 14px;
+}
+
+.bib-cover {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--bb-track);
+  box-shadow: 0 8px 22px rgba(102, 52, 26, 0.16);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.bib-open:hover .bib-cover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 14px 28px rgba(102, 52, 26, 0.22);
+}
+
+.bib-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Canción = disco con agujero (igual que Explorar) */
+.bib-cover-track { border-radius: 50%; background: #d9d9d9; }
+.bib-cover-track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 21%;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  border: 6px solid #111;
+  border-radius: 50%;
+  background: var(--bb-chip);
+}
+
+.bib-cover-album { border-radius: 16px; }
+.bib-cover-artist { border-radius: 50%; background: var(--bb-tan); }
+.bib-cover-inicial { font-size: 3rem; font-weight: 600; color: #fff; }
+
+/* Corazón: aparece suave y queda fijo si es favorito */
+.bib-fav {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--bb-card);
+  color: var(--bb-clay);
+  box-shadow: var(--bb-shadow);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.bib-fav:hover { transform: scale(1.1); }
+.bib-fav-on { color: var(--bb-danger); }
+
+.bib-text { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; }
+
+.bib-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bb-ink);
+}
+
+.bib-artist {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--bb-muted);
+}
+
+/* Badges discretos */
+.bib-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 4px; }
+
+.bib-badge {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--bb-chip);
+  color: var(--bb-clay);
+  font-size: 0.72rem;
+}
+
+.bib-badge-estado { background: var(--bb-tan); color: #fff; }
+
+.bib-stars { margin-top: 2px; color: var(--bb-tan); font-size: 0.95rem; letter-spacing: 2px; }
+.bib-stars-off { color: var(--bb-track); }
+
+.bib-resena {
+  margin: 2px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--bb-muted);
+}
+
+.bib-quitar {
+  margin-top: 4px;
+  padding: 3px 8px;
+  border: 0;
+  background: none;
+  color: var(--bb-muted);
+  font-size: 0.76rem;
+  text-decoration: underline;
+  cursor: pointer;
+  border-radius: 6px;
+  opacity: 0.7;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.bib-quitar:hover { color: var(--bb-danger); opacity: 1; }
+
+/* ---------- Botones y estados ---------- */
+.bib-btn {
+  display: inline-block;
+  padding: 12px 28px;
+  border: 1.5px solid var(--bb-header);
+  border-radius: 999px;
+  background: var(--bb-header);
+  color: #fff;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.bib-btn:hover { filter: brightness(1.15); }
+.bib-btn-ghost { background: transparent; color: var(--bb-header); }
+
+.bib-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 64px 16px;
+  text-align: center;
+}
+
+.bib-estado p { margin: 0; max-width: 400px; color: var(--bb-muted); }
+.bib-estado .bib-estado-titulo { color: var(--bb-ink); font-size: 1.2rem; font-weight: 600; }
+.bib-estado .bib-estado-error { color: var(--bb-danger); }
+.bib-estado .bib-btn { margin-top: 10px; }
+
+.bib-loading {
+  margin: 26px 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--bb-muted);
+}
+
+/* ---------- Skeleton ---------- */
+.bib-skel {
+  background: linear-gradient(90deg, var(--bb-track) 25%, #f6ecdd 50%, var(--bb-track) 75%);
+  background-size: 200% 100%;
+  animation: bib-shimmer 1.4s linear infinite;
+}
+
+.bib-skel-cover { width: 100%; aspect-ratio: 1; border-radius: 50%; }
+.bib-skel-line { width: 75%; height: 13px; margin-top: 10px; border-radius: 8px; }
+.bib-skel-line-short { width: 45%; margin-top: 4px; }
+
+@keyframes bib-shimmer { to { background-position: -200% 0; } }
+
+/* ---------- Responsive y accesibilidad ---------- */
+@media (max-width: 720px) {
+  .bib-main { padding: 22px 14px 52px; }
+  .bib-container .bib-page-title { font-size: 1.8rem; }
+  .bib-panel { padding: 22px 14px; border-radius: 22px; }
+  .bib-grid { grid-template-columns: repeat(2, 1fr); gap: 26px 14px; }
+  .bib-pill { padding: 8px 14px; font-size: 0.88rem; }
+  .bib-search { max-width: none; }
+  .bib-cover-track::after { border-width: 5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bib-cover, .bib-fav, .bib-pill, .bib-quitar { transition: none; }
+  .bib-open:hover .bib-cover, .bib-fav:hover { transform: none; }
+  .bib-skel { animation: none; }
+}
