@@ -20,13 +20,14 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/explorar" element={<Explorar />} />
         <Route path="/detalle/:type/:id" element={<Detalle />} />
-        <Route path="/perfil" element={<Perfil />} />
-        <Route path="/playlist/:id" element={<PlaylistDetalle />} />
         {/* Rutas protegidas (requieren sesión activa) */}
         <Route element={<RutaProtegida />}>
            <Route path="/biblioteca" element={<Biblioteca />} />
           <Route path="/Playlist" element={<Playlist />} />
           <Route path="/estadisticas" element={<Estadisticas />} />
+          <Route path="/playlist/:id" element={<PlaylistDetalle />} />
+        <Route path="/perfil" element={<Perfil />} />
+
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
 
