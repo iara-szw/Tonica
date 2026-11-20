@@ -3,26 +3,25 @@
 Se trata de una plataforma que te permite guardar y valorar la música que escuchás y escribir reseñas sobre ello. A la vez, podés también descubrir música nueva y leer tus estadísticas sobre tus minutos escuchados y artistas y géneros musicales más escuchados.
 
 ---
-
 ## 👥 Integrantes y Responsabilidades
 
 | Integrante | GitHub | Responsabilidades en el proyecto |
 | :--- | :--- | :--- |
-| Iara | [@iara_szw](https://github.com/iara-szw) | Principalmente backend y bd |
-| Juana | [@juaaloop](https://github.com/juaaloop) | Principalmente diseño y frontend |
+| Iara | @[iara_szw](https://github.com/iara-szw) | [Principalmente backend y bd] |
+| Juana | @[juaaloop](https://github.com/juaaloop) | [Principalmente diseño y frontend] |
 
 ---
 
 ## 🔗 Links 
 
-- **Frontend:** [https://tonica-1-cert.onrender.com](https://tonica-1-cert.onrender.com)
-- **Backend:** [https://tonica-9hyg.onrender.com](https://tonica-9hyg.onrender.com)
-- **Diseño en Figma:** [https://www.figma.com/design/KJXIFh9da60lOK50qsvDBM/Untitled?node-id=9-4&t=VzzGOgmtSd1NI46q-1](https://www.figma.com/design/KJXIFh9da60lOK50qsvDBM/Untitled?node-id=9-4&t=VzzGOgmtSd1NI46q-1)
-- **Trello:** [https://trello.com/b/YJp7hDhI/tonica](https://trello.com/b/YJp7hDhI/tonica)
+* **Frontend:** [Tonica](https://tonica-1-cert.onrender.com)
+* **Backend:** [Backend](https://tonica-9hyg.onrender.com)
+* **Diseño en Figma:** [Figma](https://www.figma.com/design/KJXIFh9da60lOK50qsvDBM/Untitled?node-id=9-4&t=VzzGOgmtSd1NI46q-1)
+* **Trello:** [Trello](https://trello.com/b/YJp7hDhI/tonica)
 
 **Cuenta de demostración precargada:**
-- **Correo:** `demo@tonica.com`
-- **Contraseña:** `demo1234`
+* **Correo:** `demo@tonica.com`
+* **Contraseña:** `demo1234`
 
 ---
 
