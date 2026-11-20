@@ -510,6 +510,48 @@
   gap: 0.6rem;
 }
 
+/* ---------- Editar mix ---------- */
+.mix-editar {
+  max-width: 520px;
+}
+
+.mix-editar label {
+  display: block;
+  margin: 0.85rem 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mx-brown);
+}
+
+.mix-editar input,
+.mix-editar textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border: 1.5px solid #d6c7b5;
+  border-radius: 12px;
+  background: #fff;
+  font: inherit;
+  color: var(--mx-text);
+  resize: vertical;
+}
+
+.mix-editar input:focus,
+.mix-editar textarea:focus {
+  outline: none;
+  border-color: var(--mx-tan);
+  box-shadow: 0 0 0 3px rgba(184, 149, 106, 0.24);
+}
+
+.mix-editar-error {
+  margin: 0.8rem 0 0 !important;
+  color: var(--mx-danger) !important;
+}
+
+.mix-editar .mix-dialogo-botones {
+  margin-top: 1.25rem;
+}
+
 @keyframes mix-fade {
   from { opacity: 0; }
   to { opacity: 1; }

@@ -403,6 +403,7 @@ const tituloSeccion = tipoActual ? tipoActual.titulo : 'Explorar';
                       className="explorar-card"
                       onClick={() => irAlDetalle(item)}
                     >
+                      
                       {tipo === 'track' ? (
                         <div className="explorar-disc">
                           {item.portada_url && <img src={item.portada_url} alt="Portada" loading="lazy" />}

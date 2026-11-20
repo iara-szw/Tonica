@@ -60,7 +60,14 @@ const Imagen = ({ src, alt = '' }) => {
   return <img className="mix-img" src={src} alt={alt} loading="lazy" onError={() => setFalla(true)} />;
 };
 
-const Mosaico = ({ portadas }) => {
+const Mosaico = ({ portadas, fotoUrl }) => {
+  if (fotoUrl) {
+    return (
+      <div className="mix-mosaico">
+        <Imagen src={fotoUrl} />
+      </div>
+    );
+  }
   if (portadas.length === 0) {
     return <div className="mix-mosaico is-vinilo" aria-hidden="true" />;
   }
@@ -100,6 +107,13 @@ const PlaylistDetalle = () => {
   const [confirmando, setConfirmando] = useState(false);
   const [borrando, setBorrando] = useState(false);
   const [aviso, setAviso] = useState(null);
+
+  const [editando, setEditando] = useState(false);
+  const [nombreEditado, setNombreEditado] = useState('');
+  const [descripcionEditada, setDescripcionEditada] = useState('');
+  const [fotoEditada, setFotoEditada] = useState('');
+  const [guardandoEdicion, setGuardandoEdicion] = useState(false);
+  const [errorEdicion, setErrorEdicion] = useState(null);
 
   const avisar = (texto, esError = false) => setAviso({ texto, esError });
 
@@ -216,6 +230,61 @@ const PlaylistDetalle = () => {
     }
   };
 
+  const abrirEdicion = () => {
+    setNombreEditado(playlist?.nombre ?? '');
+    setDescripcionEditada(playlist?.descripcion ?? '');
+    setFotoEditada(playlist?.foto_url ?? '');
+    setErrorEdicion(null);
+    setEditando(true);
+  };
+
+  const cerrarEdicion = () => {
+    if (guardandoEdicion) return;
+    setEditando(false);
+    setErrorEdicion(null);
+  };
+
+  const guardarEdicion = async (e) => {
+    e.preventDefault();
+    if (!nombreEditado.trim()) {
+      setErrorEdicion('Ponele un nombre al mix.');
+      return;
+    }
+
+    const urlFoto = fotoEditada.trim();
+    if (urlFoto && !/^https?:\/\//i.test(urlFoto)) {
+      setErrorEdicion('La foto debe ser una URL que empiece con http:// o https://.');
+      return;
+    }
+
+    setGuardandoEdicion(true);
+    setErrorEdicion(null);
+    try {
+      const res = await API.put(`/playlist/${id}`, {
+        nombre: nombreEditado.trim(),
+        descripcion: descripcionEditada.trim() || null,
+        foto_url: urlFoto || null,
+      });
+      const actualizada = res.data?.playlist;
+      if (actualizada) {
+        setPlaylist((actual) => ({ ...actual, ...actualizada }));
+      } else {
+        setPlaylist((actual) => ({
+          ...actual,
+          nombre: nombreEditado.trim(),
+          descripcion: descripcionEditada.trim() || null,
+          foto_url: urlFoto || null,
+        }));
+      }
+      setEditando(false);
+      avisar('El mix se actualizó correctamente.');
+    } catch (err) {
+      setErrorEdicion(mensajeError(err, 'No pudimos actualizar el mix. Probá de nuevo.'));
+    } finally {
+      setGuardandoEdicion(false);
+    }
+  };
+
   if (!logueado) return <Navigate to="/login" state={{ from: location }} replace />;
 
   const creada = fechaLarga(playlist?.fecha_creacion ?? playlist?.created_at ?? playlist?.creado_en);
@@ -260,7 +329,7 @@ const PlaylistDetalle = () => {
         ) : (
           <>
             <section className="mix-hero">
-              <Mosaico portadas={portadas} />
+              <Mosaico portadas={portadas} fotoUrl={playlist.foto_url} />
 
               <div className="mix-hero-info">
                 <span className="mix-etiqueta">Mix</span>
@@ -284,6 +353,9 @@ const PlaylistDetalle = () => {
                   </button>
                   <button type="button" className="mix-btn is-peligro" onClick={() => setConfirmando(true)}>
                     Eliminar mix
+                  </button>
+                  <button type="button" className="mix-btn" onClick={abrirEdicion}>
+                    Editar mix
                   </button>
                 </div>
               </div>
@@ -374,6 +446,62 @@ const PlaylistDetalle = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ---------- Edición de mix ---------- */}
+      {editando && playlist && (
+        <div className="mix-overlay" onMouseDown={cerrarEdicion}>
+          <form
+            className="mix-dialogo mix-editar"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mix-editar-titulo"
+            onSubmit={guardarEdicion}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <h2 id="mix-editar-titulo">Editar mix</h2>
+
+            <label htmlFor="mix-editar-nombre">Nombre</label>
+            <input
+              id="mix-editar-nombre"
+              type="text"
+              value={nombreEditado}
+              onChange={(e) => setNombreEditado(e.target.value)}
+              maxLength={80}
+              autoFocus
+            />
+
+            <label htmlFor="mix-editar-descripcion">Descripción</label>
+            <textarea
+              id="mix-editar-descripcion"
+              rows={3}
+              value={descripcionEditada}
+              onChange={(e) => setDescripcionEditada(e.target.value)}
+              maxLength={200}
+              placeholder="Contá de qué trata este mix"
+            />
+
+            <label htmlFor="mix-editar-foto">URL de la foto</label>
+            <input
+              id="mix-editar-foto"
+              type="url"
+              value={fotoEditada}
+              onChange={(e) => setFotoEditada(e.target.value)}
+              placeholder="https://ejemplo.com/imagen.jpg"
+            />
+
+            {errorEdicion && <p className="mix-editar-error" role="alert">{errorEdicion}</p>}
+
+            <div className="mix-dialogo-botones">
+              <button type="button" className="mix-btn is-outline" onClick={cerrarEdicion} disabled={guardandoEdicion}>
+                Cancelar
+              </button>
+              <button type="submit" className="mix-btn" disabled={guardandoEdicion}>
+                {guardandoEdicion ? 'Guardando...' : 'Guardar cambios'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
