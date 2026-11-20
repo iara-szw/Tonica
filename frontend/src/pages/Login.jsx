@@ -26,7 +26,7 @@ const validar = (modo, v) => {
   else if (!EMAIL_RE.test(v.correo.trim())) e.correo = 'Ingresá un correo válido.';
 
   if (!v.password) e.password = 'Ingresá tu contraseña.';
-  else if (modo === 'registro' && v.password.length < 6) e.password = 'Usá al menos 6 caracteres.';
+  else if (modo === 'registro' && v.password.length < 8) e.password = 'Usá al menos 8 caracteres.';
 
   if (modo === 'registro') {
     if (!v.confirmPassword) e.confirmPassword = 'Repetí tu contraseña.';
