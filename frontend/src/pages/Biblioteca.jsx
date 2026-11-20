@@ -5,7 +5,7 @@ import Header from '../componentes/Header';
 import '../style/biblioteca.css';
 
 /* ---------- Constantes ---------- */
-const TIPOS = { track: 'track', cancion: 'track', album: 'album', artist: 'artist', artista: 'artist' };
+const TIPOS = { track: 'track', cancion: 'track', 'canción': 'track', album: 'album', álbum: 'album', artist: 'artist', artista: 'artist' };
 const TIPO_LABEL = { track: 'Canción', album: 'Álbum', artist: 'Artista' };
 const ESTADO_LABEL = {
     quiero_escuchar: 'Quiero escuchar',
@@ -31,6 +31,7 @@ const FILTROS_TIPO = [
 /* ---------- Helpers ---------- */
 // Acepta un array directo o { items | biblioteca | resultados: [...] }
 const normalizarLista = (data) => {
+    console.log(data)
     if (Array.isArray(data)) return data;
     return data?.items ?? data?.biblioteca ?? data?.resultados ?? data?.data ?? [];
 };
@@ -41,12 +42,41 @@ const normalizarItem = (r) => ({
     tipo: TIPOS[String(r.tipo ?? 'track').toLowerCase()] ?? 'track',
     titulo: r.titulo ?? 'Sin título',
     artista: r.nombre_artista ?? r.artista ?? '',
-    portada: r.portada_url ?? r.portada ?? null,
+    portada_url: r.portada_url ?? r.portada ?? null,
     estado: r.estado ?? null,
     favorito: Boolean(r.es_favorito),
     puntuacion: r.puntuacion ? Number(r.puntuacion) : 0,
     resena: typeof r.resena === 'string' ? r.resena.trim() : '',
 });
+
+const cargarPortadaDesdeBackend = async (item, signal) => {
+    if (!item.idExterno) return null;
+
+    const tipos = item.tipo && item.tipo !== 'track'
+        ? [item.tipo]
+        : ['track', 'album', 'artist'];
+
+    for (const tipo of tipos) {
+        try {
+            const res = await API.get(`/musica/detalle/${tipo}/${item.idExterno}`, { signal });
+            const detalle = res.data?.detalle ?? res.data?.resultado ?? res.data;
+            if (!detalle) continue;
+
+            const portada = detalle.portada_url
+                ?? detalle.albumes?.find((album) => album.portada_url)?.portada_url
+                ?? null;
+
+            return {
+                tipo: TIPOS[String(detalle.tipo ?? tipo).toLowerCase()] ?? tipo,
+                portada,
+            };
+        } catch (err) {
+            if (err.code === 'ERR_CANCELED') throw err;
+        }
+    }
+
+    return null;
+};
 
 // Para buscar sin importar mayúsculas ni tildes
 const limpiarTexto = (s) =>
@@ -111,7 +141,31 @@ const Biblioteca = () => {
         setError(null);
         try {
             const res = await API.get('/biblioteca', { signal });
-            setItems(normalizarLista(res.data).map(normalizarItem));
+            const normalizados = normalizarLista(res.data).map(normalizarItem);
+            setItems(normalizados);
+
+            const faltantes = normalizados.filter((item) => !item.portada_url && item.idExterno);
+            if (faltantes.length > 0) {
+                void Promise.all(faltantes.map(async (item) => {
+                    try {
+                        const encontrada = await cargarPortadaDesdeBackend(item, signal);
+                        if (!encontrada || signal?.aborted) return;
+
+                        setItems((lista) => lista.map((actual) => {
+                            if (actual.id !== item.id && actual.idExterno !== item.idExterno) return actual;
+                            return {
+                                ...actual,
+                                tipo: encontrada.tipo,
+                                portada_url: encontrada.portada || actual.portada_url,
+                            };
+                        }));
+                    } catch (err) {
+                        if (err.code !== 'ERR_CANCELED') {
+                            console.warn(`No se pudo obtener la portada de ${item.titulo}:`, err);
+                        }
+                    }
+                }));
+            }
         } catch (err) {
             if (err.code === 'ERR_CANCELED') return;
             console.error('Error al cargar la biblioteca:', err);
@@ -221,8 +275,8 @@ const Biblioteca = () => {
                     aria-label={`Abrir ${item.titulo}`}
                 >
                     <span className={`bib-cover bib-cover-${item.tipo}`}>
-                        {item.portada ? (
-                            <img src={item.portada} alt="" loading="lazy" />
+                        {item.portada_url ? (
+                            <img src={item.portada_url} alt={`Portada de ${item.titulo}`} loading="lazy" />
                         ) : (
                             item.tipo === 'artist' && (
                                 <span className="bib-cover-inicial">{item.titulo.charAt(0).toUpperCase()}</span>
