@@ -86,5 +86,36 @@ export const playlistService = {
     );
 
     return { mensaje: 'Removido de la playlist exitosamente ➖' };
-  }
+  },
+
+  actualizarPlaylist: async (id_playlist, id_usuario, nombre, descripcion, foto_url) => {
+    if (!nombre || nombre.trim() === '') {
+      throw new Error('El nombre del mix es obligatorio.');
+    }
+
+    let fotoNormalizada = foto_url?.trim() || null;
+    if (fotoNormalizada && !/^https?:\/\//i.test(fotoNormalizada)) {
+      throw new Error('La foto debe ser una URL que empiece con http:// o https://.');
+    }
+
+    const actualizada = await playlistRepository.actualizar(
+      id_playlist,
+      id_usuario,
+      nombre.trim(),
+      descripcion?.trim() || null,
+      fotoNormalizada
+    );
+
+    if (!actualizada) {
+      throw new Error('La playlist no existe o no tienes permisos sobre ella.');
+    }
+
+    await actividadRepository.registrar(
+      id_usuario,
+      'PLAYLIST_ACTUALIZADA',
+      `Actualizó la playlist "${actualizada.nombre}"`
+    );
+
+    return actualizada;
+  },
 };
