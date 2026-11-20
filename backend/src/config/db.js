@@ -18,4 +18,7 @@ const pool = new Pool({
   ssl: shouldUseSsl ? { rejectUnauthorized: false } : false
 });
 
+pool.query('ALTER TABLE playlists ADD COLUMN IF NOT EXISTS foto_url TEXT')
+  .catch((error) => console.error('No se pudo asegurar la columna foto_url de playlists:', error.message));
+
 export default pool;

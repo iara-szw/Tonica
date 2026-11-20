@@ -8,6 +8,7 @@ const playlistRepository = {
         p.id,
         p.nombre,
         p.descripcion,
+        p.foto_url,
         p.creado_en,
         COUNT(pi.id_cancion)::INT AS total_canciones
       FROM playlists p
@@ -27,16 +28,19 @@ const playlistRepository = {
         p.id,
         p.nombre,
         p.descripcion,
+        p.foto_url,
         p.creado_en,
         COALESCE(
           JSON_AGG(
             JSON_BUILD_OBJECT(
               'id_cancion', c.id,
               'id_externo', c.id_externo,
+              'tipo', c.tipo,
               'titulo', c.titulo,
               'nombre_artista', c.nombre_artista,
               'genero', c.genero,
               'duracion_seg', c.duracion_seg,
+              'portada_url', c.portada_url,
               'agregado_en', pi.agregado_en
             )
           ) FILTER (WHERE c.id IS NOT NULL), '[]'::json
@@ -52,13 +56,28 @@ const playlistRepository = {
   },
 
   // Crear una nueva playlist vacía
-  crear: async (id_usuario, nombre, descripcion) => {
+  crear: async (id_usuario, nombre, descripcion, foto_url = null) => {
     const query = `
-      INSERT INTO playlists (id_usuario, nombre, descripcion, creado_en)
-      VALUES ($1, $2, $3, now())
+      INSERT INTO playlists (id_usuario, nombre, descripcion, foto_url, creado_en)
+      VALUES ($1, $2, $3, $4, now())
       RETURNING *;
     `;
-    const result = await pool.query(query, [id_usuario, nombre, descripcion || null]);
+    const result = await pool.query(query, [id_usuario, nombre, descripcion || null, foto_url]);
+    return result.rows[0];
+  },
+
+  // Actualizar nombre, descripción y foto de una playlist
+  actualizar: async (id_playlist, id_usuario, nombre, descripcion, foto_url) => {
+    const query = `
+      UPDATE playlists
+      SET
+        nombre = $3,
+        descripcion = $4,
+        foto_url = $5
+      WHERE id = $1 AND id_usuario = $2
+      RETURNING id, nombre, descripcion, foto_url, creado_en;
+    `;
+    const result = await pool.query(query, [id_playlist, id_usuario, nombre, descripcion, foto_url]);
     return result.rows[0];
   },
 

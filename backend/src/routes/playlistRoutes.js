@@ -75,4 +75,21 @@ router.delete('/:id/items/:id_cancion', authJWT, async (req, res) => {
   }
 });
 
+// PUT /api/playlist/:id -> Editar nombre, descripción y foto
+router.put('/:id', authJWT, async (req, res) => {
+  const { nombre, descripcion, foto_url } = req.body;
+  try {
+    const actualizada = await playlistService.actualizarPlaylist(
+      req.params.id,
+      req.user.id,
+      nombre,
+      descripcion,
+      foto_url
+    );
+    res.status(200).json({ mensaje: 'Mix actualizado exitosamente', playlist: actualizada });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 export default router;
